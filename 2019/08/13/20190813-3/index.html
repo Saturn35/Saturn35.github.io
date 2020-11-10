@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.jpg?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="NullPointerDereference,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 &amp;#x524D;&amp;#x8A00;&amp;#x4E0A;&amp;#x4E00;&amp;#x7BC7;&amp;#x6211;&amp;#x4EEC;&amp;#x5B66;&amp;#x4E60;&amp;#x4E86;&amp;#x4EFB;&amp;#x610F;&amp;#x5185;&amp;#x5B58;&amp;#x8986;&amp;#x76D6;&amp;#x6F0F;&amp;#x6D1E;&amp;#xFF0C;&amp;#x8FD9;&amp;#x4E00;&amp;#x8282;&amp;#x5F00;&amp;#x59CB;&amp;#x">
+<meta name="keywords" content="NullPointerDereference">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[08] HEVD 内核漏洞之空指针解引用">
+<meta property="og:url" content="https://saturn35.github.io/2019/08/13/20190813-3/index.html">
+<meta property="og:site_name" content="Saturn35">
+<meta property="og:description" content="0x00 &amp;#x524D;&amp;#x8A00;&amp;#x4E0A;&amp;#x4E00;&amp;#x7BC7;&amp;#x6211;&amp;#x4EEC;&amp;#x5B66;&amp;#x4E60;&amp;#x4E86;&amp;#x4EFB;&amp;#x610F;&amp;#x5185;&amp;#x5B58;&amp;#x8986;&amp;#x76D6;&amp;#x6F0F;&amp;#x6D1E;&amp;#xFF0C;&amp;#x8FD9;&amp;#x4E00;&amp;#x8282;&amp;#x5F00;&amp;#x59CB;&amp;#x">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/1.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/2.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/3.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/4.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/5.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/6.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/7.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/13/20190813-3/8.gif">
+<meta property="og:updated_time" content="2019-12-28T05:22:53.912Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[08] HEVD 内核漏洞之空指针解引用">
+<meta name="twitter:description" content="0x00 &amp;#x524D;&amp;#x8A00;&amp;#x4E0A;&amp;#x4E00;&amp;#x7BC7;&amp;#x6211;&amp;#x4EEC;&amp;#x5B66;&amp;#x4E60;&amp;#x4E86;&amp;#x4EFB;&amp;#x610F;&amp;#x5185;&amp;#x5B58;&amp;#x8986;&amp;#x76D6;&amp;#x6F0F;&amp;#x6D1E;&amp;#xFF0C;&amp;#x8FD9;&amp;#x4E00;&amp;#x8282;&amp;#x5F00;&amp;#x59CB;&amp;#x">
+<meta name="twitter:image" content="https://saturn35.github.io/2019/08/13/20190813-3/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saturn35.github.io/2019/08/13/20190813-3/">
+
+
+
+
+
+
+  <title>[08] HEVD 内核漏洞之空指针解引用 | Saturn35</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Saturn35</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2019/08/13/20190813-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Saturn35">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Saturn35">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[08] HEVD 内核漏洞之空指针解引用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-13T23:18:36+08:00">
+                2019-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,127
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="0x00-&#x524D;&#x8A00;"><a href="#0x00-&#x524D;&#x8A00;" class="headerlink" title="0x00 &#x524D;&#x8A00;"></a><strong>0x00 &#x524D;&#x8A00;</strong></h4><p>&#x4E0A;&#x4E00;&#x7BC7;&#x6211;&#x4EEC;&#x5B66;&#x4E60;&#x4E86;&#x4EFB;&#x610F;&#x5185;&#x5B58;&#x8986;&#x76D6;&#x6F0F;&#x6D1E;&#xFF0C;&#x8FD9;&#x4E00;&#x8282;&#x5F00;&#x59CB;&#x5B66;&#x4E60;&#x7A7A;&#x6307;&#x9488;&#x89E3;&#x5F15;&#x7528;&#xFF08;NullPointerDereference&#xFF09;&#x3002;</p>
+<p>tips:&#x524D;&#x51E0;&#x5929;&#x770B;&#x7684;19-1132&#x4E2D;&#x4E5F;&#x6D89;&#x53CA;&#x5230;&#x4E86;&#x8FD9;&#x4E00;&#x6F0F;&#x6D1E;&#xFF0C;&#x611F;&#x5174;&#x8DA3;&#x7684;&#x53EF;&#x4EE5;&#x7814;&#x7A76;&#x4E00;&#x54C8;&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tips:&#x9898;&#x5916;&#x8BDD;&#xFF0C;&#x5B66;&#x6D77;&#x65E0;&#x6DAF;&#x5440;&#xFF0C;&#x5176;&#x5B9E;&#x6709;&#x65F6;&#x611F;&#x89C9;&#x662F;&#x633A;&#x65E0;&#x804A;&#x7684;&#xFF0C;&#x7EE7;&#x7EED;&#x575A;&#x6301;&#xFF01;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5B9E;&#x9A8C;&#x73AF;&#x5883;&#xFF1A;Win10&#x4E13;&#x4E1A;&#x7248;+VMware Workstation 15 Pro+Win7 x86 sp1</p>
+<p>&#x5B9E;&#x9A8C;&#x5DE5;&#x5177;&#xFF1A;VS2015+Windbg+KmdManager+DbgViewer</p>
+<h4 id="0x01&#x6F0F;&#x6D1E;&#x539F;&#x7406;"><a href="#0x01&#x6F0F;&#x6D1E;&#x539F;&#x7406;" class="headerlink" title="0x01&#x6F0F;&#x6D1E;&#x539F;&#x7406;"></a><strong>0x01&#x6F0F;&#x6D1E;&#x539F;&#x7406;</strong></h4><p>&#x6253;&#x5F00;&#x9A71;&#x52A8;&#x7A0B;&#x5E8F;&#x4EE3;&#x7801;<a href="https://github.com/hacksysteam/HackSysExtremeVulnerableDriver/blob/master/Driver/HEVD/NullPointerDereference.c" target="_blank" rel="noopener">NullPointerDereference.c</a>,&#x770B;&#x5230;&#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">NTSTATUS</span><br><span class="line">TriggerNullPointerDereference(</span><br><span class="line">    _In_ PVOID UserBuffer</span><br><span class="line">)</span><br><span class="line">{</span><br><span class="line">    ULONG UserValue = 0;</span><br><span class="line">    ULONG MagicValue = 0xBAD0B0B0;</span><br><span class="line">    NTSTATUS Status = STATUS_SUCCESS;</span><br><span class="line">    PNULL_POINTER_DEREFERENCE NullPointerDereference = NULL;</span><br><span class="line">    PAGED_CODE();</span><br><span class="line">    __try</span><br><span class="line">    {</span><br><span class="line">        // Verify if the buffer resides in user mode</span><br><span class="line">        ProbeForRead(UserBuffer, sizeof(NULL_POINTER_DEREFERENCE), (ULONG)__alignof(UCHAR));</span><br><span class="line"></span><br><span class="line">        // Allocate Pool chunk</span><br><span class="line">        NullPointerDereference = (PNULL_POINTER_DEREFERENCE)ExAllocatePoolWithTag(</span><br><span class="line">            NonPagedPool,</span><br><span class="line">            sizeof(NULL_POINTER_DEREFERENCE),</span><br><span class="line">            (ULONG)POOL_TAG</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        if (!NullPointerDereference)</span><br><span class="line">        {</span><br><span class="line">            // Unable to allocate Pool chunk</span><br><span class="line">            DbgPrint(&quot;[-] Unable to allocate Pool chunk\n&quot;);</span><br><span class="line"></span><br><span class="line">            Status = STATUS_NO_MEMORY;</span><br><span class="line">            return Status;</span><br><span class="line">        }</span><br><span class="line">        else</span><br><span class="line">        {</span><br><span class="line">            DbgPrint(&quot;[+] Pool Tag: %s\n&quot;, STRINGIFY(POOL_TAG));</span><br><span class="line">            DbgPrint(&quot;[+] Pool Type: %s\n&quot;, STRINGIFY(NonPagedPool));</span><br><span class="line">            DbgPrint(&quot;[+] Pool Size: 0x%X\n&quot;, sizeof(NULL_POINTER_DEREFERENCE));</span><br><span class="line">            DbgPrint(&quot;[+] Pool Chunk: 0x%p\n&quot;, NullPointerDereference);</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        // Get the value from user mode</span><br><span class="line">        UserValue = *(PULONG)UserBuffer;</span><br><span class="line"></span><br><span class="line">        DbgPrint(&quot;[+] UserValue: 0x%p\n&quot;, UserValue);</span><br><span class="line">        DbgPrint(&quot;[+] NullPointerDereference: 0x%p\n&quot;, NullPointerDereference);</span><br><span class="line"></span><br><span class="line">        // Validate the magic value</span><br><span class="line">        if (UserValue == MagicValue)</span><br><span class="line">        {</span><br><span class="line">            NullPointerDereference-&gt;Value = UserValue;</span><br><span class="line">            NullPointerDereference-&gt;Callback = &amp;NullPointerDereferenceObjectCallback;</span><br><span class="line"></span><br><span class="line">            DbgPrint(&quot;[+] NullPointerDereference-&gt;Value: 0x%p\n&quot;, NullPointerDereference-&gt;Value);</span><br><span class="line">            DbgPrint(&quot;[+] NullPointerDereference-&gt;Callback: 0x%p\n&quot;, NullPointerDereference-&gt;Callback);</span><br><span class="line">        }</span><br><span class="line">        else</span><br><span class="line">        {</span><br><span class="line">            DbgPrint(&quot;[+] Freeing NullPointerDereference Object\n&quot;);</span><br><span class="line">            DbgPrint(&quot;[+] Pool Tag: %s\n&quot;, STRINGIFY(POOL_TAG));</span><br><span class="line">            DbgPrint(&quot;[+] Pool Chunk: 0x%p\n&quot;, NullPointerDereference);</span><br><span class="line"></span><br><span class="line">            // Free the allocated Pool chunk</span><br><span class="line">            ExFreePoolWithTag((PVOID)NullPointerDereference, (ULONG)POOL_TAG);</span><br><span class="line"></span><br><span class="line">            // Set to NULL to avoid dangling pointer</span><br><span class="line">            NullPointerDereference = NULL;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">#ifdef SECURE</span><br><span class="line">        // Secure Note: This is secure because the developer is checking if</span><br><span class="line">        // &apos;NullPointerDereference&apos; is not NULL before calling the callback function</span><br><span class="line">        if (NullPointerDereference)</span><br><span class="line">        {</span><br><span class="line">            NullPointerDereference-&gt;Callback();</span><br><span class="line">        }</span><br><span class="line">#else</span><br><span class="line">        DbgPrint(&quot;[+] Triggering Null Pointer Dereference\n&quot;);</span><br><span class="line"></span><br><span class="line">        // Vulnerability Note: This is a vanilla Null Pointer Dereference vulnerability</span><br><span class="line">        // because the developer is not validating if &apos;NullPointerDereference&apos; is NULL</span><br><span class="line">        // before calling the callback function</span><br><span class="line">        NullPointerDereference-&gt;Callback();</span><br><span class="line">#endif</span><br><span class="line">    }</span><br><span class="line">    __except (EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">    {</span><br><span class="line">        Status = GetExceptionCode();</span><br><span class="line">        DbgPrint(&quot;[-] Exception Code: 0x%X\n&quot;, Status);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    return Status;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x4EE3;&#x7801;&#x4E2D;&#xFF0C;&#x6709;&#x4E00;&#x5904;&#x5173;&#x4E8E;MagicValue&#x7684;&#x68C0;&#x67E5;&#xFF0C;&#x901A;&#x8FC7;&#x5219;&#x5411;&#x7F13;&#x51B2;&#x533A;&#x8D4B;&#x503C;&#xFF0C;&#x5E76;&#x6253;&#x5370;&#xFF1B;&#x53CD;&#x4E4B;&#x5219;&#x91CA;&#x653E;&#x7F13;&#x51B2;&#x533A;&#xFF0C;&#x6E05;&#x7A7A;&#x6307;&#x9488;&#x3002;&#x518D;&#x5F80;&#x540E;&#xFF0C;&#x5B58;&#x5728;&#x6F0F;&#x6D1E;&#x7684;&#x7248;&#x672C;&#x4E2D;&#xFF0C;&#x672A;&#x5BF9;NullPointerDereference&#x8FDB;&#x884C;&#x68C0;&#x67E5;&#x5224;&#x65AD;&#x5176;&#x662F;&#x5426;&#x63D0;&#x524D;&#x88AB;&#x7F6E;&#x7A7A;&#xFF0C;&#x76F4;&#x63A5;&#x8C03;&#x7528;&#x5176;&#x5185;&#x90E8;&#x7684;&#x56DE;&#x8C03;&#x3002;</p>
+<p>IDA&#x4E2D;&#x67E5;&#x770B;&#x8BE5;&#x51FD;&#x6570;&#xFF1A;</p>
+<p><img src="/2019/08/13/20190813-3/1.png" alt="img"></p>
+<p><img src="/2019/08/13/20190813-3/2.png" alt="img"></p>
+<p>&#x5982;&#x679C;&#x6211;&#x4EEC;&#x8C03;&#x7528;&#x4E86;TriggerNullPointerDereference&#x51FD;&#x6570;&#x5E76;&#x4F20;&#x5165;&#x8BE5;&#x9B54;&#x6570;&#xFF0C;&#x7406;&#x8BBA;&#x4E0A;&#x4F1A;&#x6267;&#x884C;&#x5230;&#x8BE5;&#x51FD;&#x6570;&#x4E14;&#x4E0D;&#x4F1A;&#x89E6;&#x53D1;&#x7A7A;&#x6307;&#x9488;&#x5F15;&#x7528;&#x3002;&#x4F7F;&#x7528;&#x4E0B;&#x9762;&#x7684;POC&#x6765;&#x8FDB;&#x884C;&#x6D4B;&#x8BD5;&#x3002;</p>
+<p>&#x5229;&#x7528;&#x4E4B;&#x524D;&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x6211;&#x4EEC;&#x5F97;&#x5230;IO&#x63A7;&#x5236;&#x7801;0x22202b&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">#include&lt;Windows.h&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">{</span><br><span class="line">    HANDLE hDevice = NULL;</span><br><span class="line">    </span><br><span class="line">    hDevice = CreateFileA(&quot;\\\\.\\HackSysExtremeVulnerableDriver&quot;,</span><br><span class="line">        GENERIC_READ | GENERIC_WRITE,</span><br><span class="line">        NULL,</span><br><span class="line">        NULL,</span><br><span class="line">        OPEN_EXISTING,</span><br><span class="line">        NULL,</span><br><span class="line">        NULL);</span><br><span class="line">    if (hDevice == INVALID_HANDLE_VALUE || hDevice == NULL)</span><br><span class="line">    {</span><br><span class="line">        return -1;</span><br><span class="line">    }</span><br><span class="line">    printf(&quot;[+]Success to get HANDLE!\n&quot;);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    DWORD bReturn = 0;</span><br><span class="line">    char buf[4] = { 0 };</span><br><span class="line">    *(PDWORD32)(buf) = 0xBAD0B0B0;</span><br><span class="line">    </span><br><span class="line">    DeviceIoControl(hDevice, 0x22202b, buf, 4, NULL, 0, &amp;bReturn, NULL);</span><br><span class="line">    return 0;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/08/13/20190813-3/3.png" alt="img"></p>
+<p>&#x9A8C;&#x8BC1;&#x4E86;&#x4EE3;&#x7801;&#x903B;&#x8F91;&#x662F;&#x6B63;&#x786E;&#x7684;&#x3002;</p>
+<p>&#x5F53;&#x6211;&#x4EEC;&#x4F20;&#x5165;&#x503C;&#x4E0E;MagicValue&#x503C;&#x4E0D;&#x5339;&#x914D;&#x65F6;&#xFF0C;&#x5219;&#x4F1A;&#x89E6;&#x53D1;&#x6F0F;&#x6D1E;&#x3002;</p>
+<p><img src="/2019/08/13/20190813-3/4.png" alt="img"></p>
+<p><img src="/2019/08/13/20190813-3/5.png" alt="img"></p>
+<p><img src="/2019/08/13/20190813-3/6.png" alt="img"></p>
+<p>&#x4F8B;&#x5982;&#x6211;&#x4EEC;&#x4F20;&#x5165;0xdeadb33f&#xFF0C;&#x4E3A;&#x4E86;&#x9632;&#x6B62;BSOD&#x6211;&#x4EEC;&#x770B;&#x4E0D;&#x5230;&#x6570;&#x636E;&#xFF0C;&#x52A0;&#x4E0A;&#x4E00;&#x4E2A;&#x65AD;&#x70B9;&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">*(PDWORD32)(buf) = 0xdeadb33f;</span><br><span class="line">DeviceIoControl(hDevice, 0x22202b, buf, 4, NULL, 0, &amp;bReturn, NULL);</span><br><span class="line">    _asm{</span><br><span class="line">    int 3</span><br><span class="line">    }</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/08/13/20190813-3/7.png" alt="img"></p>
+<p>&#x660E;&#x663E;&#x7684;&#xFF0C;&#x89E6;&#x53D1;&#x4E86;&#x7A7A;&#x6307;&#x9488;&#x5F15;&#x7528;&#x3002;</p>
+<h4 id="0x02&#x6F0F;&#x6D1E;&#x5229;&#x7528;"><a href="#0x02&#x6F0F;&#x6D1E;&#x5229;&#x7528;" class="headerlink" title="0x02&#x6F0F;&#x6D1E;&#x5229;&#x7528;"></a><strong>0x02&#x6F0F;&#x6D1E;&#x5229;&#x7528;</strong></h4><p>&#x8FD9;&#x91CC;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x5982;&#x4F55;&#x5728;0&#x9875;&#x5206;&#x914D;&#x4E00;&#x4E2A;&#x53CC;&#x5B57;&#x7684;&#x7A7A;&#x95F4;&#x3002;&#x5728;<a href="http://www.rohitab.com/discuss/topic/34884-c-small-hax-to-avoid-crashing-ur-prog/" target="_blank" rel="noopener">rohitab</a>&#x7684;&#x8BBA;&#x575B;&#x4E2D;&#xFF0C;&#x63D0;&#x5230;&#x4E86;NtAllocateVirtualMemory&#x53EF;&#x4EE5;&#x5728;0&#x9875;&#x5206;&#x914D;&#x5185;&#x5B58;&#x3002;</p>
+<p>Windows&#x5141;&#x8BB8;&#x4F4E;&#x6743;&#x9650;&#x7528;&#x6237;&#x53BB;&#x6620;&#x5C04;&#x7528;&#x6237;&#x8FDB;&#x7A0B;&#x7684;&#x4E0A;&#x4E0B;&#x6587;&#x5230;0&#x9875;(null page)&#x3002;&#x5C3D;&#x7BA1;VirtualAlloc&#x548C;VirtualAllocEx&#x5728;&#x5206;&#x914D;&#x7684;&#x57FA;&#x5730;&#x5740;&#x4F4E;&#x4E8E;0x00001000&#x65F6;&#x90FD;&#x4EE5;&#x62D2;&#x7EDD;&#x8BBF;&#x95EE;&#x800C;&#x544A;&#x7EC8;&#x3002;&#x7136;&#x800C;&#xFF0C;&#x5229;&#x7528;NtAllocateVirtualMemory&#x51FD;&#x6570;&#x5219;&#x6CA1;&#x6709;&#x8FD9;&#x6837;&#x7684;&#x9650;&#x5236;&#x3002;</p>
+<p>&#x5728;<a href="https://github.com/hacksysteam/HackSysExtremeVulnerableDriver/blob/master/Exploit/Common.c" target="_blank" rel="noopener">Common.c</a>&#x4EE3;&#x7801;&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x770B;&#x5230;MapNullPage&#x51FD;&#x6570;&#x4E5F;&#x662F;&#x8FD9;&#x6837;&#x7684;&#x601D;&#x8DEF;&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">hNtdll = GetModuleHandle(&quot;ntdll.dll&quot;);</span><br><span class="line"></span><br><span class="line">   // Grab the address of NtAllocateVirtualMemory</span><br><span class="line">   NtAllocateVirtualMemory = (NtAllocateVirtualMemory_t)GetProcAddress(hNtdll, &quot;NtAllocateVirtualMemory&quot;);</span><br><span class="line"></span><br><span class="line">   if (!NtAllocateVirtualMemory) {</span><br><span class="line">       DEBUG_ERROR(&quot;\t\t[-] Failed Resolving NtAllocateVirtualMemory: 0x%X\n&quot;, GetLastError());</span><br><span class="line">       exit(EXIT_FAILURE);</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   // Allocate the Virtual memory</span><br><span class="line">   NtStatus = NtAllocateVirtualMemory((HANDLE)0xFFFFFFFF,</span><br><span class="line">                                      &amp;BaseAddress,</span><br><span class="line">                                      0,</span><br><span class="line">                                      &amp;RegionSize,</span><br><span class="line">                                      MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN,</span><br><span class="line">                                      PAGE_EXECUTE_READWRITE);</span><br></pre></td></tr></table></figure>
+
+<p>&#x7533;&#x8BF7;&#x6210;&#x529F;&#x540E;&#xFF0C;&#x5C06;shellcode&#x5730;&#x5740;&#x653E;&#x5165;&#x504F;&#x79FB;&#x56DB;&#x5B57;&#x8282;&#x5904;&#xFF0C;&#x56E0;&#x4E3A;CallBack&#x6210;&#x5458;&#x5728;&#x7ED3;&#x6784;&#x4F53;&#x7684;0x4&#x5B57;&#x8282;&#x5904;&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _NULL_POINTER_DEREFERENCE</span><br><span class="line">{</span><br><span class="line">    ULONG Value;</span><br><span class="line">    FunctionPointer Callback;</span><br><span class="line">} NULL_POINTER_DEREFERENCE, *PNULL_POINTER_DEREFERENCE;</span><br></pre></td></tr></table></figure>
+
+<p>&#x90A3;&#x4E48;&#x6574;&#x7406;&#x4E00;&#x4E0B;&#x601D;&#x8DEF;&#xFF1A;</p>
+<ul>
+<li>&#x5C06;shellcode&#x653E;&#x5165;&#x5185;&#x5B58;&#x4EFB;&#x610F;&#x4F4D;&#x7F6E;</li>
+<li>&#x7533;&#x8BF7;0&#x9875;&#x5185;&#x5B58;&#x5E76;&#x5728;0x4&#x5730;&#x5740;&#x653E;&#x5165;shellcode&#x5730;&#x5740;</li>
+<li>&#x8C03;&#x7528;<code>TriggerNullPointerDereference</code>&#x51FD;&#x6570;</li>
+<li>&#x63D0;&#x6743;&#x542F;&#x52A8;cmd</li>
+</ul>
+<p>&#x6700;&#x540E;&#x5229;&#x7528;&#x4EE3;&#x7801;&#x53C2;&#x8003;<a href="https://github.com/hacksysteam/HackSysExtremeVulnerableDriver/blob/master/Exploit/NullPointerDereference.c" target="_blank" rel="noopener">&#x8FD9;&#x91CC;</a>&#x3002;</p>
+<p>&#x63D0;&#x6743;&#x6210;&#x529F;&#xFF1A;</p>
+<p><img src="/2019/08/13/20190813-3/8.gif" alt="img"></p>
+<h4 id="0x03-&#x94FE;&#x63A5;"><a href="#0x03-&#x94FE;&#x63A5;" class="headerlink" title="0x03 &#x94FE;&#x63A5;"></a>0x03 &#x94FE;&#x63A5;</h4><p>Rootkit:<a href="https://rootkits.xyz/blog/2018/01/kernel-null-pointer-dereference/" target="_blank" rel="noopener">https://rootkits.xyz/blog/2018/01/kernel-null-pointer-dereference/</a></p>
+<p>fuzzsecurity:<a href="http://fuzzysecurity.com/tutorials/expDev/16.html" target="_blank" rel="noopener">http://fuzzysecurity.com/tutorials/expDev/16.html</a></p>
+<p>&#x7389;&#x6DB5;&#x5E08;&#x5085;&#x7FFB;&#x8BD1;&#x7248;&#xFF1A;<a href="https://bbs.pediy.com/thread-225178.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-225178.htm</a></p>
+<p>TJ&#x5B66;&#x4E60;&#x7248;&#xFF1A;<a href="https://bbs.pediy.com/thread-252776.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-252776.htm</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NullPointerDereference/" rel="tag"># NullPointerDereference</a>
+          
+        </div>
+      
+      <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/08/13/20190813-3/">[08] HEVD 内核漏洞之空指针解引用</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Saturn35 的个人博客">Saturn35</a></p>
+  <p><span>发布时间:</span>2019年08月13日 - 23:18</p>
+  <p><span>最后更新:</span>2019年12月28日 - 13:22</p>
+  <p><span>原始链接:</span><a href="/2019/08/13/20190813-3/" title="[08] HEVD 内核漏洞之空指针解引用">https://saturn35.github.io/2019/08/13/20190813-3/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://saturn35.github.io/2019/08/13/20190813-3/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+    });
+    });  
+</script>
+
+      
+      </div>
+      
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/13/20190813-2/" rel="next" title="[07] HEVD 内核漏洞之任意内存覆盖">
+                <i class="fa fa-chevron-left"></i> [07] HEVD 内核漏洞之任意内存覆盖
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/13/20190813-4/" rel="prev" title="[09] HEVD 内核漏洞之DoubleFetch(竞争条件)">
+                [09] HEVD 内核漏洞之DoubleFetch(竞争条件) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/head.jpg" alt="Saturn35">
+            
+              <p class="site-author-name" itemprop="name">Saturn35</p>
+              <p class="site-description motion-element" itemprop="description">心诚求之，虽不中，不远矣。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Saturn35" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:huity35@outlook.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/Saturn35_Huity" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://passport.kanxue.com/user-center-831334.htm" target="_blank" title="kanxue">
+                      
+                        <i class="fa fa-fw fa-book"></i>kanxue</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01漏洞原理"><span class="nav-number">2.</span> <span class="nav-text">0x01漏洞原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">0x02漏洞利用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03-链接"><span class="nav-number">4.</span> <span class="nav-text">0x03 链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Saturn35</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">88.0k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+
+<script type="text/javascript" src="/js/src/click_show_text.js"></script>
+
+<script type="text/javascript" src="/js/src/FunnyTitle.js"></script>

