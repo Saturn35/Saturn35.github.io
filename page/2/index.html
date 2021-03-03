@@ -282,6 +282,180 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2019/08/13/20190813-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Saturn35">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Saturn35">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/13/20190813-2/" itemprop="url">[07] HEVD 内核漏洞之任意内存覆盖</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-13T23:08:36+08:00">
+                2019-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/13/20190813-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/08/13/20190813-2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,844
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          0x00 &#x524D;&#x8A00;&#x8FD9;&#x4E00;&#x8282;&#xFF0C;&#x5B66;&#x4E60;&#x4E00;&#x4E0B;&#x4EFB;&#x610F;&#x5185;&#x5B58;&#x8986;&#x76D6;&#xFF0C;&#x672C;&#x7BC7;&#x76F8;&#x5BF9;&#x6BD4;&#x8F83;&#x7B80;&#x5355;&#x3002;
+&#x5B9E;&#x9A8C;&#x73AF;&#x5883;&#xFF1A;Win10&#x4E13;&#x4E1A;&#x7248;+VMware Workstation 15 Pro+Win7 x86 sp1
+&#x5B9E;&#x9A8C;&#x5DE5;&#x5177;&#xFF1A;VS2015+Windbg+KmdManager+DbgViewer
+0x01 &#x6F0F;&#x6D1E;&#x539F;&#x7406;&#x5206;&#x6790;&#x6253;&#x5F00;&#x9A71;&#x52A8;&#x7A0B;&#x5E8F;&#x4EE3;&#x7801;&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;ArbitraryWrite.c&#x4E2D;&#xFF0C;&#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF1A;
+1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859NTSTATUSTriggerArbitraryWrite(    _In_ PWRITE_WHAT_WHERE UserWriteWhatWhere){    PULONG_PTR What = NULL;    PULONG_PTR Where = NULL
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/13/20190813-2/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+      <div>
+      
+      </div>
+      
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2019/08/13/20190813-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1815,177 +1989,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2019/07/23/20190723-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Saturn35">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/head.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Saturn35">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/23/20190723-1/" itemprop="url">[01] HEVD 双机调试环境搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-23T13:11:19+08:00">
-                2019-07-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/23/20190723-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2019/07/23/20190723-1/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  729
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          0x00 &#x524D;&#x8A00;&#x8FD1;&#x671F;&#x5F00;&#x59CB;&#x5B66;&#x4E60;Windows&#x5185;&#x6838;&#x6F0F;&#x6D1E;&#xFF0C;&#x53C2;&#x8003;&#x4E86;&#x5F88;&#x591A;&#x535A;&#x5BA2;&#x548C;&#x5176;&#x4ED6;&#x8D44;&#x6599;&#xFF0C;&#x51B3;&#x5B9A;&#x8FD8;&#x662F;&#x8FB9;&#x5B66;&#x4E60;&#x8FB9;&#x5206;&#x4EAB;&#x6574;&#x4E2A;&#x5206;&#x6790;&#x7684;&#x8FC7;&#x7A0B;&#x3002;&#x65B0;&#x624B;&#x4E0A;&#x8DEF;&#xFF0C;&#x5982;&#x6709;&#x9519;&#x8BEF;&#xFF0C;&#x6B22;&#x8FCE;&#x6307;&#x6B63;&#x3002;
-&#x6574;&#x4E2A;&#x5B66;&#x4E60;&#x4E3B;&#x8981;&#x4EE5;HEVD(HackSysExtremeVulnerableDriver)&#x8FD9;&#x4E2A;&#x9879;&#x76EE;&#x4E3A;&#x4E3B;&#xFF0C;&#x5B83;&#x4E00;&#x4E2A;&#x5B58;&#x5728;&#x6F0F;&#x6D1E;&#x7684;&#x5185;&#x6838;&#x7684;&#x9A71;&#x52A8;&#xFF0C;&#x91CC;&#x9762;&#x5B58;&#x5728;&#x591A;&#x4E2A;&#x6F0F;&#x6D1E;&#xFF0C;&#x901A;&#x8FC7;ControlCode&#x63A7;&#x5236;&#x6F0F;&#x6D1E;&#x7C7B;&#x578B;&#xFF0C;
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/23/20190723-1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-      <div>
-      
-      </div>
-      
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2039,7 +2042,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2117,7 +2120,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -2131,7 +2134,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">91.5k</span>
+    <span title="Site words total count">98.2k</span>
   
 </div>
 
